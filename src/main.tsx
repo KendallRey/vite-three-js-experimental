@@ -1,10 +1,16 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import * as THREE from 'three';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('root') as HTMLCanvasElement
+})
+
+renderer.setSize(width, height);
+
+const mainCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
+
+const scene = new THREE.Scene();
+
+renderer.render(scene, mainCamera);
