@@ -16,6 +16,7 @@ const mainCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
 // Initialize Cannon.js physics world
 const physicsWorld = new CANNON.World();
 physicsWorld.gravity.set(0, -9.81, 0);
+// physicsWorld.gravity.set(0, 0, -9.81);
 
 const scene = new BlasterScene(mainCamera, physicsWorld);
 scene.init();

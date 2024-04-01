@@ -12,26 +12,21 @@ export default class BouncyBox {
     this.scene = scene;
     this.world = world;
 
-    // Create Three.js mesh
     const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
     const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.position.copy(position);
     this.scene.add(this.mesh);
 
-    // Create Cannon.js body
     const shape = new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2));
     this.body = new CANNON.Body({ mass: 1, shape });
-    this.body.position.copy(ThreeVec3ToCannonVec3(position));
+    const newVec3 = ThreeVec3ToCannonVec3(position);
+    this.body.position.copy(newVec3);
     this.world.addBody(this.body);
   }
 
-  applyRandomImpulse() {
-    const impulse = new CANNON.Vec3(
-      Math.random() * 10 - 5, // Random x component
-      Math.random() * 10 - 5, // Random y component
-      Math.random() * 10 - 5  // Random z component
-    );
-    this.body.applyImpulse(impulse, new CANNON.Vec3());
+  update() {
+    this.mesh.position.copy(this.body.position);
+    this.mesh.quaternion.copy(this.body.quaternion);
   }
 }

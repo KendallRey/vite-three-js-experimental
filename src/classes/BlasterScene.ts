@@ -21,19 +21,39 @@ export default class BlasterScene extends THREE.Scene {
   private bullets: Bullet[] = [];
   private targets: THREE.Group[] = [];
 
+  private bouncyBoxes: BouncyBox[] = [];
+
   private physicsWorld: CANNON.World;
 
   constructor(camera: THREE.PerspectiveCamera, physicsWorld: CANNON.World) {
     super();
     this.camera = camera;
 
-    // Initialize Cannon.js physics world
     this.physicsWorld = physicsWorld;
+
   }
 
   async init() {
-    
-    new Ground(this, this.physicsWorld);
+
+    const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 10, 0xff0000);
+    const yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 10, 0x00ff00);
+    const zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(), 10, 0x0000ff);
+
+    this.add(xAxis);
+    this.add(yAxis);
+    this.add(zAxis);
+
+    const test = new CANNON.Vec3(1, 1, 1);
+
+    const xAxisC = new THREE.ArrowHelper(new THREE.Vector3(test.x, 0, 0), new THREE.Vector3(1,1,1), 10, 0xff0000);
+    const yAxisC = new THREE.ArrowHelper(new THREE.Vector3(0, test.y, 0), new THREE.Vector3(1,1,1), 10, 0x00ff00);
+    const zAxisC = new THREE.ArrowHelper(new THREE.Vector3(0, 0, test.z), new THREE.Vector3(1,1,1), 10, 0x0000ff);
+
+    this.add(xAxisC);
+    this.add(yAxisC);
+    this.add(zAxisC);
+
+    new Ground(this, this.physicsWorld, 100, 100);
 
     const targetMtl = await this.mtlLoader.loadAsync('assets/targetA.mtl');
     targetMtl.preload();
@@ -69,7 +89,8 @@ export default class BlasterScene extends THREE.Scene {
     const light = new THREE.DirectionalLight(0xFFFFFF, 1);
     light.position.set(0, 4, 2);
     this.add(light);
-
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    this.add(ambientLight);
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
   }
@@ -127,13 +148,6 @@ export default class BlasterScene extends THREE.Scene {
     const modelRoot = await this.objLoader.loadAsync('assets/targetA.obj');
     modelRoot.rotateY(Math.PI * 0.5);
 
-    // Add Cannon.js physics body to the target
-    const shape = new CANNON.Box(new CANNON.Vec3(1, 1, 1)); // Example shape
-    const targetBody = new CANNON.Body({ mass: 0, shape }); // Static body
-    const newVec3 = ThreeVec3ToCannonVec3(modelRoot.position);
-    targetBody.position.copy(newVec3);
-    this.physicsWorld.addBody(targetBody);
-
     return modelRoot;
   }
 
@@ -163,7 +177,7 @@ export default class BlasterScene extends THREE.Scene {
 
     this.camera.getWorldDirection(dir);
 
-    const speed = 0.01;
+    const speed = 0.1;
 
     if(this.keyDown.has('w') || this.keyDown.has('arrowup')){
       this.blaster.position.add(dir.clone().multiplyScalar(speed));
@@ -204,7 +218,8 @@ export default class BlasterScene extends THREE.Scene {
             // Handle bullet hit
             this.remove(b.group);
             const newVec3 = ThreeVec3ToCannonVec3(target.position);
-            new BouncyBox(this, this.physicsWorld, new THREE.Vector3(.2, .2, .2), new THREE.Vector3(newVec3.x, newVec3.y, newVec3.z))
+            const box = new BouncyBox(this, this.physicsWorld, new THREE.Vector3(.2, .2, .2), new THREE.Vector3(newVec3.x, newVec3.y+1, newVec3.z))
+            this.bouncyBoxes.push(box);
             this.bullets.splice(i, 1);
             i--;
 
@@ -221,6 +236,7 @@ export default class BlasterScene extends THREE.Scene {
   update() {
     this.updateBullets();
     this.updateInput();
+    this.bouncyBoxes.forEach(box => box.update());
   }
 
   private updatePhysics() {
