@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MTLLoader, OBJLoader } from 'three/examples/jsm/Addons.js';
+import Bullet from './Bullet';
 
 export default class BlasterScene extends THREE.Scene {
 
@@ -9,9 +10,13 @@ export default class BlasterScene extends THREE.Scene {
   private readonly camera: THREE.PerspectiveCamera;
 
   private blaster?: THREE.Group;
+  private bulletMtl?: MTLLoader.MaterialCreator;
 
   private keyDown = new Set<string>();
   private directionVector = new THREE.Vector3();
+
+	private bullets: Bullet[] = []
+	private targets: THREE.Group[] = []
 
   constructor (camera: THREE.PerspectiveCamera) {
     super()
@@ -23,6 +28,9 @@ export default class BlasterScene extends THREE.Scene {
     
     const targetMtl = await this.mtlLoader.loadAsync('assets/targetA.mtl');
     targetMtl.preload();
+
+    this.bulletMtl = await this.mtlLoader.loadAsync('assets/foamBulletB.mtl');
+    this.bulletMtl.preload();
 
     const t1 = await this.createTarget(targetMtl);
     t1.position.x = -1;
@@ -38,6 +46,7 @@ export default class BlasterScene extends THREE.Scene {
     t4.position.z = -3;
 
     this.add(t1, t2, t3, t4);
+    this.targets.push(t1, t2, t3, t4);
 
     this.blaster = await this.createBlaster();
     this.add(this.blaster);
@@ -63,6 +72,10 @@ export default class BlasterScene extends THREE.Scene {
 
   private handleKeyUp(event: KeyboardEvent) {
     this.keyDown.delete(event.key.toLowerCase());
+
+    if(event.key === ' '){
+      this.createBullet();
+    }
   }
 
   private updateInput(){
@@ -104,6 +117,44 @@ export default class BlasterScene extends THREE.Scene {
       }
   }
 
+  private async createBullet () {
+    if(!this.blaster) return;
+    if(!this.bulletMtl) return;
+
+    this.objLoader.setMaterials(this.bulletMtl);
+
+    const bulletModel = await this.objLoader.loadAsync('assets/foamBulletB.obj');
+
+    this.camera.getWorldDirection(this.directionVector);
+
+    const aabb = new THREE.Box3().setFromObject(this.blaster);
+    const size = aabb.getSize(new THREE.Vector3());
+
+    const vec = this.blaster.position.clone();
+    vec.y += 0.06;
+
+    bulletModel.position.add(
+      vec.add(
+        this.directionVector.clone().multiplyScalar(size.z * 0.5)
+      )
+    )
+
+    bulletModel.children.forEach(child => child.rotateX(Math.PI * -0.5));
+
+    bulletModel.rotation.copy(this.blaster.rotation);
+
+    this.add(bulletModel)
+
+		const b = new Bullet(bulletModel)
+		b.setVelocity(
+			this.directionVector.x * 0.2,
+			this.directionVector.y * 0.2,
+			this.directionVector.z * 0.2
+		)
+
+		this.bullets.push(b)
+  }
+
   private async createTarget (mtl: MTLLoader.MaterialCreator) {
     this.objLoader.setMaterials(mtl);
     const modelRoot = await this.objLoader.loadAsync('assets/targetA.obj');
@@ -122,7 +173,42 @@ export default class BlasterScene extends THREE.Scene {
     return modelRoot;
   }
 
+  private updateBullets()
+	{
+		for (let i = 0; i < this.bullets.length; ++i)
+		{
+			const b = this.bullets[i]
+			b.update()
+
+			if (b.shouldRemove)
+			{
+				this.remove(b.group)
+				this.bullets.splice(i, 1)
+				i--
+			}
+			else
+			{
+				for (let j = 0; j < this.targets.length; ++j)
+				{
+					const target = this.targets[j]
+					if (target.position.distanceToSquared(b.group.position) < 0.05)
+					{
+						this.remove(b.group)
+						this.bullets.splice(i, 1)
+						i--
+
+						target.visible = false
+						setTimeout(() => {
+							target.visible = true
+						}, 1000)
+					}
+				}
+			}
+		}
+	}
+
   update(){
+    this.updateBullets();
     this.updateInput();
   }
 }
