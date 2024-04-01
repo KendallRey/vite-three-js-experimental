@@ -1,9 +1,12 @@
 import * as THREE from 'three';
 import { MTLLoader, OBJLoader } from 'three/examples/jsm/Addons.js';
 import Bullet from './Bullet';
+import * as CANNON from 'cannon';
+import Ground from './Ground';
+import { ThreeVec3ToCannonVec3 } from '../helper/vector';
+import BouncyBox from './BouncyBox';
 
 export default class BlasterScene extends THREE.Scene {
-
   private readonly mtlLoader = new MTLLoader();
   private readonly objLoader = new OBJLoader();
 
@@ -15,17 +18,23 @@ export default class BlasterScene extends THREE.Scene {
   private keyDown = new Set<string>();
   private directionVector = new THREE.Vector3();
 
-	private bullets: Bullet[] = []
-	private targets: THREE.Group[] = []
+  private bullets: Bullet[] = [];
+  private targets: THREE.Group[] = [];
 
-  constructor (camera: THREE.PerspectiveCamera) {
-    super()
+  private physicsWorld: CANNON.World;
+
+  constructor(camera: THREE.PerspectiveCamera, physicsWorld: CANNON.World) {
+    super();
     this.camera = camera;
 
+    // Initialize Cannon.js physics world
+    this.physicsWorld = physicsWorld;
   }
 
-  async init(){
+  async init() {
     
+    new Ground(this, this.physicsWorld);
+
     const targetMtl = await this.mtlLoader.loadAsync('assets/targetA.mtl');
     targetMtl.preload();
 
@@ -59,7 +68,6 @@ export default class BlasterScene extends THREE.Scene {
 
     const light = new THREE.DirectionalLight(0xFFFFFF, 1);
     light.position.set(0, 4, 2);
-
     this.add(light);
 
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -73,10 +81,72 @@ export default class BlasterScene extends THREE.Scene {
   private handleKeyUp(event: KeyboardEvent) {
     this.keyDown.delete(event.key.toLowerCase());
 
-    if(event.key === ' '){
+    if (event.key === ' ') {
       this.createBullet();
     }
   }
+
+  private async createBullet() {
+    if (!this.blaster || !this.bulletMtl) return;
+
+    this.objLoader.setMaterials(this.bulletMtl);
+
+    const bulletModel = await this.objLoader.loadAsync('assets/foamBulletB.obj');
+
+    this.camera.getWorldDirection(this.directionVector);
+
+    const aabb = new THREE.Box3().setFromObject(this.blaster);
+    const size = aabb.getSize(new THREE.Vector3());
+
+    const vec = this.blaster.position.clone();
+    vec.y += 0.06;
+
+    bulletModel.position.add(
+      vec.add(
+        this.directionVector.clone().multiplyScalar(size.z * 0.5)
+      )
+    )
+
+    bulletModel.children.forEach(child => child.rotateX(Math.PI * -0.5));
+    bulletModel.rotation.copy(this.blaster.rotation);
+
+    this.add(bulletModel);
+
+    const b = new Bullet(bulletModel);
+    b.setVelocity(
+      this.directionVector.x * 0.2,
+      this.directionVector.y * 0.2,
+      this.directionVector.z * 0.2
+    )
+
+    this.bullets.push(b);
+  }
+
+  private async createTarget(mtl: MTLLoader.MaterialCreator) {
+    this.objLoader.setMaterials(mtl);
+    const modelRoot = await this.objLoader.loadAsync('assets/targetA.obj');
+    modelRoot.rotateY(Math.PI * 0.5);
+
+    // Add Cannon.js physics body to the target
+    const shape = new CANNON.Box(new CANNON.Vec3(1, 1, 1)); // Example shape
+    const targetBody = new CANNON.Body({ mass: 0, shape }); // Static body
+    const newVec3 = ThreeVec3ToCannonVec3(modelRoot.position);
+    targetBody.position.copy(newVec3);
+    this.physicsWorld.addBody(targetBody);
+
+    return modelRoot;
+  }
+
+  private async createBlaster() {
+    const mtl = await this.mtlLoader.loadAsync('assets/blasterG.mtl');
+    mtl.preload();
+
+    this.objLoader.setMaterials(mtl);
+    const modelRoot = await this.objLoader.loadAsync('assets/blasterG.obj');
+
+    return modelRoot;
+  }
+
 
   private updateInput(){
     if(!this.blaster) return;
@@ -109,106 +179,59 @@ export default class BlasterScene extends THREE.Scene {
       if(this.keyDown.has('a') || this.keyDown.has('arrowleft'))
         this.blaster.position.add(
           strafeDir.applyAxisAngle(upVector, Math.PI * 0.5).multiplyScalar(speed)
-        )
+      )
       else if(this.keyDown.has('d') || this.keyDown.has('arrowright'))
         this.blaster.position.add(
           strafeDir.applyAxisAngle(upVector, Math.PI * -0.5).multiplyScalar(speed)
-        )
-      }
-  }
-
-  private async createBullet () {
-    if(!this.blaster) return;
-    if(!this.bulletMtl) return;
-
-    this.objLoader.setMaterials(this.bulletMtl);
-
-    const bulletModel = await this.objLoader.loadAsync('assets/foamBulletB.obj');
-
-    this.camera.getWorldDirection(this.directionVector);
-
-    const aabb = new THREE.Box3().setFromObject(this.blaster);
-    const size = aabb.getSize(new THREE.Vector3());
-
-    const vec = this.blaster.position.clone();
-    vec.y += 0.06;
-
-    bulletModel.position.add(
-      vec.add(
-        this.directionVector.clone().multiplyScalar(size.z * 0.5)
       )
-    )
-
-    bulletModel.children.forEach(child => child.rotateX(Math.PI * -0.5));
-
-    bulletModel.rotation.copy(this.blaster.rotation);
-
-    this.add(bulletModel)
-
-		const b = new Bullet(bulletModel)
-		b.setVelocity(
-			this.directionVector.x * 0.2,
-			this.directionVector.y * 0.2,
-			this.directionVector.z * 0.2
-		)
-
-		this.bullets.push(b)
+    }
   }
 
-  private async createTarget (mtl: MTLLoader.MaterialCreator) {
-    this.objLoader.setMaterials(mtl);
-    const modelRoot = await this.objLoader.loadAsync('assets/targetA.obj');
-    modelRoot.rotateY(Math.PI * 0.5);
 
-    return modelRoot;
+  private updateBullets() {
+    for (let i = 0; i < this.bullets.length; ++i) {
+      const b = this.bullets[i];
+      b.update();
+
+      if (b.shouldRemove) {
+        this.remove(b.group);
+        this.bullets.splice(i, 1);
+        i--;
+      } else {
+        for (let j = 0; j < this.targets.length; ++j) {
+          const target = this.targets[j];
+          if (target.position.distanceToSquared(b.group.position) < 0.05) {
+            // Handle bullet hit
+            this.remove(b.group);
+            const newVec3 = ThreeVec3ToCannonVec3(target.position);
+            new BouncyBox(this, this.physicsWorld, new THREE.Vector3(.2, .2, .2), new THREE.Vector3(newVec3.x, newVec3.y, newVec3.z))
+            this.bullets.splice(i, 1);
+            i--;
+
+            target.visible = false;
+            setTimeout(() => {
+              target.visible = true;
+            }, 1000);
+          }
+        }
+      }
+    }
   }
 
-  private async createBlaster(){
-    const mtl = await this.mtlLoader.loadAsync('assets/blasterG.mtl');
-    mtl.preload();
-
-    this.objLoader.setMaterials(mtl);
-    const modelRoot = await this.objLoader.loadAsync('assets/blasterG.obj');
-
-    return modelRoot;
-  }
-
-  private updateBullets()
-	{
-		for (let i = 0; i < this.bullets.length; ++i)
-		{
-			const b = this.bullets[i]
-			b.update()
-
-			if (b.shouldRemove)
-			{
-				this.remove(b.group)
-				this.bullets.splice(i, 1)
-				i--
-			}
-			else
-			{
-				for (let j = 0; j < this.targets.length; ++j)
-				{
-					const target = this.targets[j]
-					if (target.position.distanceToSquared(b.group.position) < 0.05)
-					{
-						this.remove(b.group)
-						this.bullets.splice(i, 1)
-						i--
-
-						target.visible = false
-						setTimeout(() => {
-							target.visible = true
-						}, 1000)
-					}
-				}
-			}
-		}
-	}
-
-  update(){
+  update() {
     this.updateBullets();
     this.updateInput();
+  }
+
+  private updatePhysics() {
+    // Step the Cannon.js physics simulation
+    const fixedTimeStep = 1 / 60; // 60 fps
+    this.physicsWorld.step(fixedTimeStep, undefined, undefined);
+  }
+
+
+  tick() {
+    this.update();
+    this.updatePhysics();
   }
 }
