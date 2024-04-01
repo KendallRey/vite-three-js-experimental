@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import BlasterScene from './classes/BlasterScene';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -11,6 +12,13 @@ renderer.setSize(width, height);
 
 const mainCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
 
-const scene = new THREE.Scene();
+const scene = new BlasterScene(mainCamera);
+scene.init();
 
-renderer.render(scene, mainCamera);
+function tick(){
+  scene.update();
+  renderer.render(scene, mainCamera);
+  requestAnimationFrame(tick);
+}
+
+tick();
