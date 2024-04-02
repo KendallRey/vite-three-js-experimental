@@ -162,10 +162,8 @@ class SpaceScene extends THREE.Scene {
 
   private updateBGStars(time: number) {
     if(!this.particlesMesh) return;
-    const mouseXOffset = this.screenSize.x / 2;
-    const mouseYOffset = this.screenSize.y / 2;
-    this.particlesMesh.rotation.y = (this.mouseVector2.x - mouseXOffset) * (time * 0.00005);
-    this.particlesMesh.rotation.x = (this.mouseVector2.y - mouseYOffset) * (time * 0.00005);
+    this.particlesMesh.rotation.y = (time * 0.008);
+    this.particlesMesh.rotation.x = (time * 0.008);
   }
 
   private updateRaycast() {
