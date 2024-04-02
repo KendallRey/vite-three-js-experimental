@@ -20,6 +20,7 @@ physicsWorld.gravity.set(0, -9.81, 0);
 const scene = new SpaceScene();
 
 function tick() {
+  scene.update();
   physicsWorld.step(1 / 60);
   renderer.render(scene, mainCamera);
   requestAnimationFrame(tick);

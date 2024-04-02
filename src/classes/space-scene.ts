@@ -16,7 +16,9 @@ class SpaceScene extends THREE.Scene {
     this.add(pointLight);
   }
 
-  
+  update(){
+    
+  }
 }
 
 export default SpaceScene;
