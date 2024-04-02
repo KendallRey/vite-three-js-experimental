@@ -78,11 +78,11 @@ class SpaceScene extends THREE.Scene {
     pointLight.position.z = 4;
     this.add(pointLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    pointLight.position.x = 2;
-    pointLight.position.y = 3;
-    pointLight.position.z = 4;
-    this.add(directionalLight);
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    // pointLight.position.x = 2;
+    // pointLight.position.y = 3;
+    // pointLight.position.z = 4;
+    // this.add(directionalLight);
   }
 
   private initCamera() {

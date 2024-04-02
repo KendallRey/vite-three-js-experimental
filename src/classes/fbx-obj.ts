@@ -79,7 +79,10 @@ class FBXObj extends DynamicObj {
           const material = new THREE.MeshStandardMaterial({
             color: 0xff0000,
             emissive: 0xff0000,
-            emissiveIntensity: 1,
+            emissiveIntensity: 10,
+            opacity: 1,
+            blending: THREE.AdditiveBlending,
+            
           });
           child.material = material;
       } else {

@@ -17,7 +17,12 @@ export default class Ground {
     this.groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
 
     const planeGeometry = new THREE.PlaneGeometry(width, height);
-    const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x636e72, side: THREE.DoubleSide });
+    const planeMaterial = new THREE.MeshBasicMaterial({
+      color: 0x636e72,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0,
+    });
     this.planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 
     this.syncPlane();
