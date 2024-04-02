@@ -10,14 +10,15 @@ const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('root') as HTMLCanvasElement
 })
 
-// renderer.setSize(width, height);
+renderer.setSize(width, height);
 
-const mainCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
+const mainCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
 
 const physicsWorld = new CANNON.World();
 physicsWorld.gravity.set(0, -9.81, 0);
 
-const scene = new SpaceScene();
+const scene = new SpaceScene(mainCamera);
+scene.init();
 
 function tick() {
   scene.update();
