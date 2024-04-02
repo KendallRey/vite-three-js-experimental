@@ -5,13 +5,17 @@ class SpaceScene extends THREE.Scene {
   private readonly camera: THREE.PerspectiveCamera
   private readonly clock = new THREE.Clock();
 
-  private sphere: THREE.Points | undefined;
+  private sphere?: THREE.Points;
+  private star?: THREE.Texture;
+  private particlesMesh?: THREE.Points;
 
-  constructor(camera: THREE.PerspectiveCamera) {
+  private screenSize = new THREE.Vector2();
+
+  constructor(camera: THREE.PerspectiveCamera, screenX: number, screenY: number) {
     super()
     this.camera = camera;
-    
 
+    this.initScreenSize(screenX, screenY);
   }
 
   async init() {
@@ -20,14 +24,14 @@ class SpaceScene extends THREE.Scene {
     this.initBGStarts(5000);
     this.initLighting();
     this.test();
+    this.initListeners();
 
-    this.camera.position.x = 0;
-    this.camera.position.y = 0;
-    this.camera.position.z = 2;
-    this.add(this.camera);
+    this.initCamera();
   }
 
-  private star: THREE.Texture | undefined;
+  private initScreenSize(x: number, y: number) {
+    this.screenSize  = new THREE.Vector2(x, y);
+  }
 
   private async loadTextures() {
     const textureLoader = new THREE.TextureLoader();
@@ -40,6 +44,14 @@ class SpaceScene extends THREE.Scene {
     pointLight.position.y = 3;
     pointLight.position.z = 4;
     this.add(pointLight);
+  }
+
+  private initCamera() {
+  
+    this.camera.position.x = 0;
+    this.camera.position.y = 0;
+    this.camera.position.z = 2;
+    this.add(this.camera);
   }
 
   private initBGStarts(count: number) {
@@ -60,9 +72,9 @@ class SpaceScene extends THREE.Scene {
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positionArr, 3));
 
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    this.particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
 
-    this.add(particlesMesh);
+    this.add(this.particlesMesh);
   }
 
   private test() {
@@ -78,14 +90,37 @@ class SpaceScene extends THREE.Scene {
 
   }
 
-  update(){
+  private mouseVector2 = new THREE.Vector2();
 
+  private initListeners() {
+    document.addEventListener('mousemove', (ev) => {
+      this.mouseVector2.x = ev.clientX;
+      this.mouseVector2.y = ev.clientY;
+    })
+  }
+
+
+
+  update(){
     const elapsedTime = this.clock.getElapsedTime();
 
+    this.updateSphere(elapsedTime);
+    this.updateBGStars(elapsedTime);
+  }
+
+  private updateSphere(time: number) {
     if(!this.sphere) return;
-    this.sphere.rotation.x = .8 * elapsedTime;
-    this.sphere.rotation.y = .5 * elapsedTime;
-    this.sphere.rotation.z = .2 * elapsedTime;
+    this.sphere.rotation.x = .8 * time;
+    this.sphere.rotation.y = .5 * time;
+    this.sphere.rotation.z = .2 * time;
+  }
+
+  private updateBGStars(time: number) {
+    if(!this.particlesMesh) return;
+    const mouseXOffset = this.screenSize.x / 2;
+    const mouseYOffset = this.screenSize.y / 2;
+    this.particlesMesh.rotation.y = (this.mouseVector2.x - mouseXOffset) * (time * 0.00005);
+    this.particlesMesh.rotation.x = (this.mouseVector2.y - mouseYOffset) * (time * 0.00005);
   }
 }
 

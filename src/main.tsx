@@ -19,7 +19,7 @@ const mainCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
 const physicsWorld = new CANNON.World();
 physicsWorld.gravity.set(0, -9.81, 0);
 
-const scene = new SpaceScene(mainCamera);
+const scene = new SpaceScene(mainCamera, width, height);
 scene.init();
 
 function tick() {
