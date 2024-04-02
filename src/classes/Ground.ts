@@ -1,46 +1,35 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
-import { ThreeVec3ToCannonVec3 } from '../helper/vector';
 
 export default class Ground {
   private scene: THREE.Scene;
   private world: CANNON.World;
+  private planeMesh: THREE.Mesh;
+  private groundBody: CANNON.Body;
 
   constructor(scene: THREE.Scene, world: CANNON.World, width: number, height: number) {
     this.scene = scene;
     this.world = world;
 
-    // Create the ground mesh
-    const groundGeometry = new THREE.PlaneGeometry(width, height);
-    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0xd3436, side: THREE.DoubleSide });
-    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-    groundMesh.rotation.x = -Math.PI / 2;
-    groundMesh.position.y = -5;
-    const newPosition = groundMesh.position.clone();
-    this.scene.add(groundMesh);
-
-    // Create the ground shape
     const groundShape = new CANNON.Plane();
-    groundShape.worldNormal.set(-10, -10, -10); // Set the normal of the ground plane
-    const rotationQuaternion = new CANNON.Quaternion()
-    // rotationQuaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), 90);
-    rotationQuaternion.vmult(groundShape.worldNormal, groundShape.worldNormal); // Rotate the normal vector
+    this.groundBody = new CANNON.Body({ mass: 0 });
+    this.groundBody.addShape(groundShape);
+    this.groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
 
-    // Adjust the size of the ground plane by scaling its bounding box
-    const groundShapeHalfExtents = new CANNON.Vec3(width / 2, 1, height / 2); // Use half of the desired width and height
-    groundShape.boundingSphereRadius = groundShapeHalfExtents.norm(); // Update bounding sphere radius
+    const planeGeometry = new THREE.PlaneGeometry(width, height);
+    const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x636e72, side: THREE.DoubleSide });
+    this.planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 
-    // Create the ground body
-    const groundBody = new CANNON.Body({ mass: 0 });
-    groundBody.addShape(groundShape);
-    groundBody.position.copy(ThreeVec3ToCannonVec3(newPosition))
-    this.world.addBody(groundBody);
+    this.syncPlane();
+  }
 
-    const geometry = new THREE.BoxGeometry(width, height, 10);
-    const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-    const _groundMesh = new THREE.Mesh(geometry, material);
-    _groundMesh.rotateX(Math.PI * 0.5);
-    _groundMesh.position.y = -10;
-    scene.add(_groundMesh);
+  private syncPlane()  {
+    const { x, y, z } = this.groundBody.position;
+    const quaternion = new THREE.Quaternion().copy(this.groundBody.quaternion);
+    this.planeMesh.position.set(x, y, z);
+    this.planeMesh.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+    
+    this.world.addBody(this.groundBody);
+    this.scene.add(this.planeMesh);
   }
 }

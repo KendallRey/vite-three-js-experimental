@@ -35,25 +35,7 @@ export default class BlasterScene extends THREE.Scene {
 
   async init() {
 
-    const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 10, 0xff0000);
-    const yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 10, 0x00ff00);
-    const zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(), 10, 0x0000ff);
-
-    this.add(xAxis);
-    this.add(yAxis);
-    this.add(zAxis);
-
-    const test = new CANNON.Vec3(1, 1, 1);
-
-    const xAxisC = new THREE.ArrowHelper(new THREE.Vector3(test.x, 0, 0), new THREE.Vector3(1,1,1), 10, 0xff0000);
-    const yAxisC = new THREE.ArrowHelper(new THREE.Vector3(0, test.y, 0), new THREE.Vector3(1,1,1), 10, 0x00ff00);
-    const zAxisC = new THREE.ArrowHelper(new THREE.Vector3(0, 0, test.z), new THREE.Vector3(1,1,1), 10, 0x0000ff);
-
-    this.add(xAxisC);
-    this.add(yAxisC);
-    this.add(zAxisC);
-
-    new Ground(this, this.physicsWorld, 100, 100);
+    new Ground(this, this.physicsWorld, 10, 10);
 
     const targetMtl = await this.mtlLoader.loadAsync('assets/targetA.mtl');
     targetMtl.preload();
