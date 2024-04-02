@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import SpaceShip from './space-ship';
+import DynamicObj from './dynamic-obj';
+import TestBox from './test-box';
+import Ground from './ground';
+import FBXObj from './fbx-obj';
 
 class SpaceScene extends THREE.Scene {
 
@@ -63,6 +67,8 @@ class SpaceScene extends THREE.Scene {
     this.groundMesh.rotateY(Math.PI);
     this.groundMesh.rotateZ(Math.PI);
     this.add(this.groundMesh);
+
+    new Ground(this, this.world, 20, 20);
   }
 
   private initLighting() {
@@ -114,6 +120,7 @@ class SpaceScene extends THREE.Scene {
   }
 
   private testMesh?: THREE.Mesh;
+  private objs: DynamicObj[] = [];
   private test() {
 
     const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 2, 0xff0000);
@@ -132,16 +139,31 @@ class SpaceScene extends THREE.Scene {
     // this.add(this.testMesh);
   }
 
-  private mouseVector2 = new THREE.Vector2();
 
   private initListeners() {
     document.addEventListener('mousemove', (ev) => {
-      this.mouseVector2.x = ev.clientX;
-      this.mouseVector2.y = ev.clientY;
 
       this.mousePosition.x = (ev.clientX / window.innerWidth) * 2 - 1;
       this.mousePosition.y = -(ev.clientY / window.innerHeight) * 2 + 1;
+      
     })
+
+    document.addEventListener('mouseup', () => {
+      console.log("test", this.objs);
+      this.spawnTest2();
+    })
+  }
+
+  private spawnBox() {
+    const offset = new THREE.Vector3(0, 2, 0);
+    const newObj = new TestBox(this, this.world, this.targetPosition.add(offset), 0.1);
+    this.objs.push(newObj);
+  }
+
+  private spawnTest2() {
+    const offset = new THREE.Vector3(0, 2, 0);
+    const newObj = new FBXObj(this, this.world, this.targetPosition.add(offset), 'assets/test_box.fbx');
+    this.objs.push(newObj);
   }
 
   private spaceShip?: SpaceShip;
@@ -160,6 +182,8 @@ class SpaceScene extends THREE.Scene {
     this.updateRaycast();
     
     this.spaceShip?.updateTurrets(this.targetPosition);
+
+    this.objs.forEach((obj) => obj.update())
   }
 
   private updateBGStars(time: number) {

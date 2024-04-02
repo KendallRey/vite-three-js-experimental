@@ -10,3 +10,9 @@ export const CannonVec3ToThreeVec3 = (cannonVec3: CANNON.Vec3) => {
   const { x, y, z, } = cannonVec3;
   return new THREE.Vector3(x, y, z);
 }
+
+export const GetGroupDimensions = (group: THREE.Group): THREE.Vector3 => {
+  const boundingBox = new THREE.Box3();
+  boundingBox.setFromObject(group);
+  return boundingBox.getSize(new THREE.Vector3());
+}
