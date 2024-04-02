@@ -16,15 +16,15 @@ renderer.setClearColor(new THREE.Color('#21282a'), 1);
 
 const mainCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
 
-const physicsWorld = new CANNON.World();
-physicsWorld.gravity.set(0, -9.81, 0);
+const world = new CANNON.World();
+world.gravity.set(0, -9.81, 0);
 
-const scene = new SpaceScene(mainCamera, width, height);
+const scene = new SpaceScene(mainCamera, world, width, height);
 scene.init();
 
 function tick() {
   scene.update();
-  physicsWorld.step(1 / 60);
+  world.step(1 / 60);
   renderer.render(scene, mainCamera);
   requestAnimationFrame(tick);
 }

@@ -15,9 +15,11 @@ class SpaceScene extends THREE.Scene {
   private targetPosition = new THREE.Vector3();
   private raycaster = new THREE.Raycaster();
   private groundMesh?: THREE.Mesh;
+  private world: CANNON.World;
 
-  constructor(camera: THREE.PerspectiveCamera, screenX: number, screenY: number) {
+  constructor(camera: THREE.PerspectiveCamera, world: CANNON.World, screenX: number, screenY: number) {
     super()
+    this.world = world;
     this.camera = camera;
     this.camera.layers.enable(1);
     this.raycaster.layers.set(1);
