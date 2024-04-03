@@ -20,7 +20,7 @@ renderer.setSize(width, height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 // renderer.setClearColor(new THREE.Color('#21282a'), 1);
 
-const mainCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
+const mainCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 2000);
 
 
 const world = new CANNON.World();
@@ -78,7 +78,7 @@ function tick() {
   world.step(1 / 60);
 
   composer.render();
-  renderer.render(scene, mainCamera);
+  // renderer.render(scene, mainCamera);
 }
 
 tick();

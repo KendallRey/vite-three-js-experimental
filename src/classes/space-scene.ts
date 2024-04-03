@@ -53,7 +53,7 @@ class SpaceScene extends THREE.Scene {
   }
 
   private initGround() {
-    const geometry = new THREE.PlaneGeometry(40, 40);
+    const geometry = new THREE.PlaneGeometry(2000, 2000);
     const material = new THREE.MeshBasicMaterial({
       color: 'black',
       opacity: 0,
@@ -78,22 +78,26 @@ class SpaceScene extends THREE.Scene {
     pointLight.position.z = 4;
     this.add(pointLight);
 
-    // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    // pointLight.position.x = 2;
-    // pointLight.position.y = 3;
-    // pointLight.position.z = 4;
-    // this.add(directionalLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
+    pointLight.position.x = 2;
+    pointLight.position.y = 3;
+    pointLight.position.z = 4;
+    this.add(directionalLight);
   }
 
+  private currentCameraPosition = new THREE.Vector3();
+  private currentCameraRotation = new THREE.Quaternion();
+
   private initCamera() {
-  
     this.camera.position.x = 2;
     this.camera.position.y = 4;
     this.camera.position.z = -2;
     this.camera.rotateX(Math.PI * -.7);
-    this.camera.rotateY(Math.PI * .1);
+    this.camera.rotateY(Math.PI * .15);
     this.camera.rotateZ(Math.PI * .85);
-    this.add(this.camera);
+
+    this.camera.getWorldPosition(this.currentCameraPosition);
+    this.camera.getWorldQuaternion(this.currentCameraRotation);
   }
 
   private initBGStarts(count: number) {
@@ -123,9 +127,9 @@ class SpaceScene extends THREE.Scene {
   private objs: DynamicObj[] = [];
   private test() {
 
-    const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 2, 0xff0000);
-    const yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 2, 0x00ff00);
-    const zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(), 2, 0x0000ff);
+    const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 20, 0xff0000);
+    const yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 20, 0x00ff00);
+    const zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(), 20, 0x0000ff);
 
     this.add(xAxis);
     this.add(yAxis);
@@ -149,7 +153,6 @@ class SpaceScene extends THREE.Scene {
     })
 
     document.addEventListener('mouseup', () => {
-      console.log("test", this.objs);
       this.spawnTest2();
     })
   }
@@ -169,10 +172,22 @@ class SpaceScene extends THREE.Scene {
   private spaceShip?: SpaceShip;
   private async initObjects() {
     this.spaceShip = new SpaceShip();
-    await this.spaceShip.init(0.005);
+    await this.spaceShip.init(0.2);
     const obj = this.spaceShip.get();
     if(!obj) return;
     this.add(obj);
+
+    obj.add(this.camera);
+
+    const { x: xPos, y: yPos , z: zPos } = this.currentCameraPosition;
+    const { x: xRot, y: yRot , z: zRot, w } = this.currentCameraRotation;
+
+    this.camera.position.set(xPos * 40, yPos * 40, zPos * 40);
+    this.camera.quaternion.set(xRot, yRot, zRot, w);
+
+    this.camera.position.sub(obj.position);
+    this.camera.position.applyQuaternion(obj.quaternion.invert());
+    this.camera.quaternion.premultiply(obj.quaternion.invert());
   }
 
   update(){
