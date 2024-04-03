@@ -34,7 +34,7 @@ class SpaceScene extends THREE.Scene {
 
     await this.loadTextures();
     this.initGround();
-    this.initBGStarts(10000);
+    // this.initBGStarts(10000);
     this.initLighting();
     this.test();
     this.initListeners();

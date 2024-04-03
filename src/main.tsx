@@ -3,7 +3,7 @@ import * as CANNON from 'cannon';
 
 import SpaceScene from './classes/space-scene';
 import './index.css';
-import { BlendFunction, EffectComposer, EffectPass, RenderPass, SelectiveBloomEffect } from 'postprocessing';
+import { BlendFunction, DepthEffect, DepthOfFieldEffect, EffectComposer, EffectPass, RenderPass, SelectiveBloomEffect, TextureEffect } from 'postprocessing';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -32,15 +32,44 @@ scene.init();
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, mainCamera));
 
+
+
 const effect = new SelectiveBloomEffect(scene, mainCamera, {
   blendFunction: BlendFunction.ADD,
   mipmapBlur: true,
-  luminanceThreshold: 0.2,
-  luminanceSmoothing: 0.2,
-  intensity: 3.0,
+  luminanceThreshold: 0,
+  luminanceSmoothing: 0,
+  intensity: 2,
+  radius: 0.3,
 });
+
+const depthOfFieldEffect = new DepthOfFieldEffect( mainCamera, {
+  focusDistance: 10,
+  focalLength: 2,
+  bokehScale: 0.2,
+  height: 480
+});
+
+const cocTextureEffect = new TextureEffect({
+  blendFunction: BlendFunction.SKIP,
+  texture: depthOfFieldEffect.cocTexture
+});
+
+const depthEffect = new DepthEffect({
+  blendFunction: BlendFunction.SKIP
+});
+
+const effectPass = new EffectPass(
+  mainCamera,
+  effect,
+  depthOfFieldEffect,
+  depthEffect,
+  cocTextureEffect,
+);
+
 effect.inverted = true;
-composer.addPass(new EffectPass( mainCamera, effect ));
+
+composer.addPass(effectPass);
 
 function tick() {
   requestAnimationFrame(tick);
