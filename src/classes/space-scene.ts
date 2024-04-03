@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 import SpaceShip from './space-ship';
 import DynamicObj from './dynamic-obj';
 import TestBox from './test-box';
@@ -169,13 +170,20 @@ class SpaceScene extends THREE.Scene {
     this.objs.push(newObj);
   }
 
+  // #region Player
+
   private spaceShip?: SpaceShip;
+  // #endregion
+
   private async initObjects() {
-    this.spaceShip = new SpaceShip();
-    await this.spaceShip.init(0.2);
+    this.spaceShip = new SpaceShip(this, this.world);
+    await this.spaceShip.init(0.2, new THREE.Vector3(0, 5, 0));
+    this.spaceShip.initController();
     const obj = this.spaceShip.get();
     if(!obj) return;
     this.add(obj);
+
+    this.objs.push(this.spaceShip);
 
     obj.add(this.camera);
 
@@ -195,8 +203,9 @@ class SpaceScene extends THREE.Scene {
 
     this.updateBGStars(elapsedTime);
     this.updateRaycast();
-    
+
     this.spaceShip?.updateTurrets(this.targetPosition);
+    this.spaceShip?.updateMovement();
 
     this.objs.forEach((obj) => obj.update())
   }

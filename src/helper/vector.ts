@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
+import * as CANNON from 'cannon-es'
 
 export const ThreeVec3ToCannonVec3 = (threeVec3: THREE.Vector3) => {
   const { x, y, z, } = threeVec3;

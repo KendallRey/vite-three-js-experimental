@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
+import * as CANNON from 'cannon-es'
 import { ThreeVec3ToCannonVec3 } from '../helper/vector';
 import DynamicObj from './dynamic-obj';
 

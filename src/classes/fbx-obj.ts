@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
+import * as CANNON from 'cannon-es'
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import DynamicObj from "./dynamic-obj";
 import { BufferGeometryUtils } from 'three/examples/jsm/Addons.js';

@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
+import * as CANNON from 'cannon-es'
 
 abstract class DynamicObj {
 
-  private scene: THREE.Scene;
-  private world: CANNON.World;
-  private mesh?: THREE.Object3D<THREE.Object3DEventMap>;
-  private body?: CANNON.Body;
+  protected scene: THREE.Scene;
+  protected world: CANNON.World;
+  protected mesh?: THREE.Object3D<THREE.Object3DEventMap>;
+  protected body?: CANNON.Body;
 
   constructor (scene: THREE.Scene, world: CANNON.World) {
     this.scene = scene;
