@@ -75,7 +75,7 @@ function tick() {
   requestAnimationFrame(tick);
 
   scene.update();
-  world.step(1 / 60);
+  world.fixedStep();
 
   composer.render();
   // renderer.render(scene, mainCamera);

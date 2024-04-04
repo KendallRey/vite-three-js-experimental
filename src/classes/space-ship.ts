@@ -5,15 +5,13 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import DynamicObj from './dynamic-obj';
 import { GetGroupDimensions, ThreeVec3ToCannonVec3 } from '../helper/vector';
 
-const SPEED = 1;
-
 class SpaceShip extends DynamicObj {
 
   private model?: Group<Object3DEventMap>
   private loader = new FBXLoader();
   private turrets: THREE.Object3D<THREE.Object3DEventMap>[] = [];
   private targetAltitude = 10;
-  private hoverOffsetForce = 18;
+  private hoverOffsetForce = 200;
 
   private ray = new CANNON.Ray();
   private downDir = new CANNON.Vec3(0, -1, 0);
@@ -33,9 +31,8 @@ class SpaceShip extends DynamicObj {
     const body = this.useBoxShape(this.model);
     const newVec3 = ThreeVec3ToCannonVec3(position);
     body.position.copy(newVec3);
-    body.angularFactor = new CANNON.Vec3(0, 1, 0);
-    body.angularDamping = 0.5;
 
+    body.angularFactor = new CANNON.Vec3(0, 1, 0);
     this.setObj(this.model, body);
   }
 
@@ -44,7 +41,7 @@ class SpaceShip extends DynamicObj {
 
     const boxShape = new CANNON.Box(new CANNON.Vec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
     
-    const body = new CANNON.Body({ mass: 10, shape: boxShape });
+    const body = new CANNON.Body({ mass: 100, shape: boxShape, linearDamping: 0.2, angularDamping: 0.6 });
     return body;
   }
 
@@ -78,27 +75,11 @@ class SpaceShip extends DynamicObj {
     this.keyDown.delete(ev.key.toLowerCase());
   }
 
-  private directionVector = new THREE.Vector3();
+  private steeringForce = new CANNON.Vec3(0, 300, 0);
+  private thrustForce = new CANNON.Vec3(0, 0, 0);
 
-  updateMovement() {
-    if(!this.model) return;
-
-    const force = new CANNON.Vec3(0, 0, 0);
-    const point = new CANNON.Vec3(0, 0, 0);
-
+  private updateInput() {
     if(!this.body) return;
-  
-    if(this.keyDown.has('a') || this.keyDown.has('arrowleft'))
-      this.body.applyTorque(new CANNON.Vec3(0, 20, 0));
-    if(this.keyDown.has('d') || this.keyDown.has('arrowright'))
-      this.body.applyTorque(new CANNON.Vec3(0, -20, 0));
-
-    if(this.keyDown.has('w') || this.keyDown.has('arrowup')){
-      force.z = 20;
-    }
-    else if (this.keyDown.has('s') || this.keyDown.has('arrowdown')) {
-      force.z = -20;
-    }
 
     const startPos = this.body.position;
     this.ray.from.copy(startPos);
@@ -109,13 +90,44 @@ class SpaceShip extends DynamicObj {
 
     if(raycastResult.hasHit) {
       const { distance } = raycastResult;
-      force.y = Math.abs(((distance - this.targetAltitude) * 1.2) * this.hoverOffsetForce);
+      this.thrustForce.y = Math.abs(((distance - this.targetAltitude) * 1.1) * this.hoverOffsetForce);
     }
 
-    this.body.applyLocalForce(force, this.body.position);
+    const left = this.keyDown.has('a') || this.keyDown.has('arrowleft');
+    const right = this.keyDown.has('d') || this.keyDown.has('arrowright');
+    const forward = this.keyDown.has('w') || this.keyDown.has('arrowup');
+    const backward = this.keyDown.has('s') || this.keyDown.has('arrowdown');
+
+    if(forward){
+      this.thrustForce.z = 220
+    }
+    else if (backward) {
+      this.thrustForce.z = -220
+    }
+    else {
+      this.thrustForce.z = 0
+    }
+
+    if(left)
+      this.body.applyTorque(this.steeringForce)
+    if(right)
+      this.body.applyTorque(this.steeringForce.clone().scale(-1))
 
   }
+
   
+
+  updateMovement() {
+    if(!this.model) return;
+
+    if(!this.body) return;
+  
+    this.updateInput();
+
+    this.body.applyLocalForce(this.thrustForce, new CANNON.Vec3(0,0,0));
+
+  }
+
 }
 
 export default SpaceShip;
