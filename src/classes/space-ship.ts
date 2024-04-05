@@ -3,7 +3,7 @@ import * as CANNON from 'cannon-es'
 import { Group, Object3DEventMap } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import DynamicObj from './dynamic-obj';
-import { GetGroupDimensions, ThreeVec3ToCannonVec3 } from '../helper/vector';
+import {  ThreeVec3ToCannonVec3 } from '../helper/vector';
 
 class SpaceShip extends DynamicObj {
 
@@ -28,22 +28,16 @@ class SpaceShip extends DynamicObj {
       }
     });
 
-    const body = this.useBoxShape(this.model);
+    const body = this.useBoxShape(this.model, { mass: 100, linearDamping: 0.2, angularDamping: 0.6 })
+
     const newVec3 = ThreeVec3ToCannonVec3(position);
     body.position.copy(newVec3);
 
     body.angularFactor = new CANNON.Vec3(0, 1, 0);
+
     this.setObj(this.model, body);
   }
 
-  private useBoxShape(mesh: THREE.Group<THREE.Object3DEventMap>) {
-    const dimensions = GetGroupDimensions(mesh);
-
-    const boxShape = new CANNON.Box(new CANNON.Vec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
-    
-    const body = new CANNON.Body({ mass: 100, shape: boxShape, linearDamping: 0.2, angularDamping: 0.6 });
-    return body;
-  }
 
   processGroup(obj: THREE.Object3D<THREE.Object3DEventMap>) {
     if(obj.name.includes('turret')){
@@ -52,7 +46,7 @@ class SpaceShip extends DynamicObj {
   }
 
   get() {
-    return this.model;
+    return this.mesh;
   }
 
   updateTurrets(target: THREE.Vector3) {
@@ -62,7 +56,7 @@ class SpaceShip extends DynamicObj {
   private keyDown = new Set<string>();
 
   initController(){
-    if(!this.model) return;
+    if(!this.mesh) return;
     document.addEventListener('keydown', this.handleKeydown.bind(this));
     document.addEventListener('keyup', this.handleKeyup.bind(this));
   }
@@ -118,7 +112,7 @@ class SpaceShip extends DynamicObj {
   
 
   updateMovement() {
-    if(!this.model) return;
+    if(!this.mesh) return;
 
     if(!this.body) return;
   

@@ -18,13 +18,17 @@ export default class Ground {
 
     const planeGeometry = new THREE.PlaneGeometry(width, height);
     const planeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x636e72,
+      color: 0xFDEAD7,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0,
+      opacity: 1,
     });
     this.planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 
+    this.planeMesh.layers.set(1);
+    this.planeMesh.rotateX(Math.PI * .5);
+    this.planeMesh.rotateY(Math.PI);
+    this.planeMesh.rotateZ(Math.PI);
     this.syncPlane();
   }
 

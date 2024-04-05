@@ -11,7 +11,7 @@ export const CannonVec3ToThreeVec3 = (cannonVec3: CANNON.Vec3) => {
   return new THREE.Vector3(x, y, z);
 }
 
-export const GetGroupDimensions = (group: THREE.Group): THREE.Vector3 => {
+export const GetGroupDimensions = (group: THREE.Object3D<THREE.Object3DEventMap>): THREE.Vector3 => {
   const boundingBox = new THREE.Box3();
   boundingBox.setFromObject(group);
   return boundingBox.getSize(new THREE.Vector3());

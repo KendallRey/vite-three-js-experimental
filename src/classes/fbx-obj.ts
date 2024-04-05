@@ -3,30 +3,29 @@ import * as CANNON from 'cannon-es'
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import DynamicObj from "./dynamic-obj";
 import { BufferGeometryUtils } from 'three/examples/jsm/Addons.js';
-import { GetGroupDimensions, ThreeVec3ToCannonVec3 } from '../helper/vector';
+import { ThreeVec3ToCannonVec3 } from '../helper/vector';
 
 class FBXObj extends DynamicObj {
 
   private loader = new FBXLoader();
   private url: string
 
-  constructor (scene: THREE.Scene, world: CANNON.World, position: THREE.Vector3, url: string) {
+  constructor (scene: THREE.Scene, world: CANNON.World, url: string) {
     super(scene, world);
     this.url = url;
-    this.init(position);
   }
 
-  private async init(position: THREE.Vector3) {
+  async init(position: THREE.Vector3, options?: ThreeMeshOptions) {
 
-    const mesh = await this.loader.loadAsync(this.url);
-    mesh.position.copy(position);
-    this.applyMaterial(mesh);
-    mesh.scale.set(0.01, 0.01, 0.01)
-    const body = this.useBoxShape(mesh);
+    this.mesh = await this.loader.loadAsync(`${this.url}.fbx`);
+    this.mesh.position.copy(position);
+    this.applyMaterial(this.mesh as THREE.Group<THREE.Object3DEventMap>);
+    this.setOptions(this.mesh, options);
+    const body = this.useBoxShape(this.mesh);
     // const body = this.useConvexShape(mesh);
     const newVec3 = ThreeVec3ToCannonVec3(position);
     body.position.copy(newVec3);
-    this.setObj(mesh, body);
+    this.setObj(this.mesh, body);
   }
 
   private useConvexShape(mesh: THREE.Group<THREE.Object3DEventMap>) {
@@ -54,18 +53,9 @@ class FBXObj extends DynamicObj {
     const facesArray = faces.map(face => [face[0], face[1], face[2]]);
     const vertices: CANNON.Vec3[] = facesArray.map(face => new CANNON.Vec3(face[0], face[1], face[2]));
 
-    const convexShape = new CANNON.ConvexPolyhedron(vertices, facesArray);
+    const convexShape = new CANNON.ConvexPolyhedron({vertices, faces: facesArray});
     const body = new CANNON.Body({ mass: 1, shape: convexShape });
 
-    return body;
-  }
-
-  private useBoxShape(mesh: THREE.Group<THREE.Object3DEventMap>) {
-    const dimensions = GetGroupDimensions(mesh);
-
-    const boxShape = new CANNON.Box(new CANNON.Vec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
-    
-    const body = new CANNON.Body({ mass: 1, shape: boxShape });
     return body;
   }
 

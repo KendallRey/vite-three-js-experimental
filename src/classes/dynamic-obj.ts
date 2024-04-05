@@ -1,11 +1,14 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es'
+import { GetGroupDimensions } from '../helper/vector';
+
+type MeshType = THREE.Group<THREE.Object3DEventMap> | THREE.Object3D<THREE.Object3DEventMap>
 
 abstract class DynamicObj {
 
   protected scene: THREE.Scene;
   protected world: CANNON.World;
-  protected mesh?: THREE.Object3D<THREE.Object3DEventMap>;
+  protected mesh?: MeshType;
   protected body?: CANNON.Body;
 
   constructor (scene: THREE.Scene, world: CANNON.World) {
@@ -13,14 +16,14 @@ abstract class DynamicObj {
     this.world = world;
   }
 
-  protected setObj( mesh: THREE.Object3D<THREE.Object3DEventMap>, body: CANNON.Body ) {
+  protected setObj( mesh: MeshType, body: CANNON.Body) {
     this.mesh = mesh;
     this.body = body;
     this.scene.add(this.mesh);
     this.world.addBody(this.body);
   }
 
-  protected setMesh( mesh: THREE.Object3D<THREE.Object3DEventMap> ) {
+  protected setMesh( mesh: MeshType ) {
     this.mesh = mesh;
     this.scene.add(this.mesh);
   }
@@ -36,6 +39,20 @@ abstract class DynamicObj {
     this.mesh?.quaternion.copy(this.body.quaternion);
   }
 
+  protected useBoxShape(mesh: MeshType, options?: CannonBodyOptions) {
+    const dimensions = GetGroupDimensions(mesh);
+
+    const boxShape = new CANNON.Box(new CANNON.Vec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
+
+    const body = new CANNON.Body({ mass: 1, shape: boxShape, ...options });
+    return body;
+  }
+
+  protected setOptions(mesh: MeshType, options?: ThreeMeshOptions){
+    if(options?.scale){
+      mesh.scale.copy(options.scale)
+    }
+  }
 }
 
 export default DynamicObj

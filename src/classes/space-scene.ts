@@ -3,8 +3,9 @@ import * as CANNON from 'cannon-es';
 import SpaceShip from './space-ship';
 import DynamicObj from './dynamic-obj';
 import TestBox from './test-box';
-import Ground from './ground';
+import Ground from './world-ground';
 import FBXObj from './fbx-obj';
+import OBJObj from './obj-obj';
 
 class SpaceScene extends THREE.Scene {
 
@@ -54,22 +55,7 @@ class SpaceScene extends THREE.Scene {
   }
 
   private initGround() {
-    const geometry = new THREE.PlaneGeometry(2000, 2000);
-    const material = new THREE.MeshBasicMaterial({
-      color: 'black',
-      opacity: 0,
-      transparent: true,
-      blending: THREE.NormalBlending,
-    });
-
-    this.groundMesh = new THREE.Mesh(geometry, material);
-    this.groundMesh.layers.set(1);
-    this.groundMesh.rotateX(Math.PI * .5);
-    this.groundMesh.rotateY(Math.PI);
-    this.groundMesh.rotateZ(Math.PI);
-    this.add(this.groundMesh);
-
-    new Ground(this, this.world, 20, 20);
+    new Ground(this, this.world, 2000, 2000);
   }
 
   private initLighting() {
@@ -128,9 +114,9 @@ class SpaceScene extends THREE.Scene {
   private objs: DynamicObj[] = [];
   private test() {
 
-    const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 20, 0xff0000);
-    const yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 20, 0x00ff00);
-    const zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(), 20, 0x0000ff);
+    const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0,0.5,0), 20, 0xff0000);
+    const yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0,0.5,0), 20, 0x00ff00);
+    const zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0,0.5,0), 20, 0x0000ff);
 
     this.add(xAxis);
     this.add(yAxis);
@@ -166,7 +152,8 @@ class SpaceScene extends THREE.Scene {
 
   private spawnTest2() {
     const offset = new THREE.Vector3(0, 2, 0);
-    const newObj = new FBXObj(this, this.world, this.targetPosition.add(offset), 'assets/test_box.fbx');
+    const newObj = new FBXObj(this, this.world, 'assets/test_box');
+    newObj.init(this.targetPosition.add(offset), { scale: new THREE.Vector3(0.05, 0.05, 0.05)})
     this.objs.push(newObj);
   }
 
@@ -196,6 +183,16 @@ class SpaceScene extends THREE.Scene {
     this.camera.position.sub(obj.position);
     this.camera.position.applyQuaternion(obj.quaternion.invert());
     this.camera.quaternion.premultiply(obj.quaternion.invert());
+
+    const test = new OBJObj(this, this.world, 'assets/KR_Circle');
+    await test.init(new THREE.Vector3(-20, 7, 0), { scale: new THREE.Vector3(10, 10, 10)})
+
+    this.objs.push(test);
+
+    const test2 = new OBJObj(this, this.world, 'assets/test_cube');
+    await test2.init(new THREE.Vector3(-20, 2, 0), { scale: new THREE.Vector3(1, 1, 1)})
+
+    this.objs.push(test2);
   }
 
   update(){

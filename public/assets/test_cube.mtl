@@ -1,0 +1,13 @@
+# Blender MTL File: 'test_cube.blend'
+# Material Count: 1
+
+newmtl Material
+Ns 0.000000
+Ka 0.981818 0.981818 0.981818
+Kd 0.800000 0.800000 0.800000
+Ks 0.522727 0.522727 0.522727
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd D:\\KR\\displacementX\\DisplacementX_2048x2048_2024-04-05-AO.png
