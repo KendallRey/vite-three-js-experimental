@@ -18,7 +18,8 @@ export default class Ground {
 
     const planeGeometry = new THREE.PlaneGeometry(width, height);
     const planeMaterial = new THREE.MeshBasicMaterial({
-      color: 0xFDEAD7,
+      color: 0x000000,
+      // color: 0xFDEAD7,
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 1,

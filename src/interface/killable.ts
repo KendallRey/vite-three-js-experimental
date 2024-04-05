@@ -1,3 +1,3 @@
-export interface IKillable {
-  health: number;
+export interface IDestroyable {
+  isAlive: boolean;
 }

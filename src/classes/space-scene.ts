@@ -6,6 +6,8 @@ import TestBox from './test-box';
 import Ground from './world-ground';
 import FBXObj from './fbx-obj';
 import OBJObj from './obj-obj';
+import ParticleSystem from './particle-system';
+import { IDestroyable } from '../interface/killable';
 
 class SpaceScene extends THREE.Scene {
 
@@ -112,6 +114,8 @@ class SpaceScene extends THREE.Scene {
 
   private testMesh?: THREE.Mesh;
   private objs: DynamicObj[] = [];
+  private particleSystems: ParticleSystem[] = [];
+
   private test() {
 
     const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0,0.5,0), 20, 0xff0000);
@@ -140,14 +144,14 @@ class SpaceScene extends THREE.Scene {
     })
 
     document.addEventListener('mouseup', () => {
-      this.spawnTest2();
+      // this.spawnTest2();
+      this.spawnParticle();
     })
   }
 
-  private spawnBox() {
-    const offset = new THREE.Vector3(0, 2, 0);
-    const newObj = new TestBox(this, this.world, this.targetPosition.add(offset), 0.1);
-    this.objs.push(newObj);
+  private spawnParticle() {
+    const newParticleSystem = new ParticleSystem(this, this.world, 50, this.targetPosition, 100);
+    this.particleSystems.push(newParticleSystem);
   }
 
   private spawnTest2() {
@@ -205,6 +209,8 @@ class SpaceScene extends THREE.Scene {
     this.spaceShip?.updateMovement();
 
     this.objs.forEach((obj) => obj.update())
+    this.particleSystems.forEach((obj) => obj.updateParticles())
+    this.particleSystems = this.garbageCollection(this.particleSystems);
   }
 
   private updateBGStars(time: number) {
@@ -222,6 +228,9 @@ class SpaceScene extends THREE.Scene {
     }
   }
 
+  private garbageCollection<T>(destroyables: IDestroyable[]) {
+    return destroyables.filter((destroyable) => destroyable.isAlive) as T;
+  }
 }
 
 export default SpaceScene;

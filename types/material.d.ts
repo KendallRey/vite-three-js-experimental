@@ -1,4 +1,23 @@
 type MaterialOptions = {
+  color?: ColorRepresentation | undefined;
+  opacity?: number | undefined;
+  map?: Texture | null | undefined;
+  lightMap?: Texture | null;
+  lightMapIntensity?: number | undefined;
+  aoMap?: Texture | null | undefined;
+  aoMapIntensity?: number | undefined;
+  specularMap?: Texture | null | undefined;
+  alphaMap?: Texture | null | undefined;
+  fog?: boolean | undefined;
+  envMap?: Texture | null | undefined;
+  envMapRotation?: Euler | undefined;
+  combine?: Combine | undefined;
+  reflectivity?: number | undefined;
+  refractionRatio?: number | undefined;
+  wireframe?: boolean | undefined;
+  wireframeLinewidth?: number | undefined;
+  wireframeLinecap?: string | undefined;
+  wireframeLinejoin?: string | undefined;
   alphaHash?: boolean | undefined;
   alphaTest?: number | undefined;
   alphaToCoverage?: boolean | undefined;

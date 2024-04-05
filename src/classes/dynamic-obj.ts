@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es'
 import { GetGroupDimensions } from '../helper/vector';
 
-type MeshType = THREE.Group<THREE.Object3DEventMap> | THREE.Object3D<THREE.Object3DEventMap>
+type MeshType = THREE.Object3D<THREE.Object3DEventMap>
 
 abstract class DynamicObj {
 
@@ -56,7 +56,7 @@ abstract class DynamicObj {
     }
   }
 
-  protected kill(){
+  kill(){
     this.isAlive = false;
     if(this.body)
       this.world.removeBody(this.body);
