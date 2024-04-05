@@ -9,7 +9,7 @@ class SpaceShip extends DynamicObj {
 
   private model?: Group<Object3DEventMap>
   private loader = new FBXLoader();
-  private turrets: THREE.Object3D<THREE.Object3DEventMap>[] = [];
+  turrets: THREE.Object3D<THREE.Object3DEventMap>[] = [];
   private targetAltitude = 10;
   private hoverOffsetForce = 200;
 

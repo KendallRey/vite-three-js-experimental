@@ -2,12 +2,10 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es'
 import Particle from './particle';
 import { SetVectorRandomC } from '../helper/vector';
+import Effect from './effects';
 
-class ParticleSystem {
+class ParticleSystem extends Effect {
 
-  private readonly life: number;
-  private currentLife = 1;
-  public isAlive = true;
   
   private groundMaterial = new CANNON.Material('ground');
   private material = new CANNON.Material()
@@ -18,12 +16,11 @@ class ParticleSystem {
   private particles: Particle[]
 
   constructor(scene: THREE.Scene, world: CANNON.World, count: number, position: THREE.Vector3, life: number){
+    super(life);
     this.scene = scene;
     this.world = world;
     this.initContactMaterial();
     this.count = count;
-    this.life = life;
-    this.currentLife = life;
     this.particles = this.initParticles(position);
   }
 
@@ -62,15 +59,15 @@ class ParticleSystem {
     return particles;
   }
 
-  updateParticles() {
-    if(!this.isAlive) return;
-    this.currentLife -= 1;
-    const opacityStep = this.currentLife/ this.life;
-    if(this.currentLife <= 0){
-      this.particles.forEach((particle) => particle.kill());
-      this.isAlive = false;
+  updateEffect() {
+    const doUpdate = this.update();
+    if(!doUpdate) {
+      this.particles.forEach((particle) => {
+        particle.kill();
+      });
       return;
     }
+    const opacityStep = this.currentLife/ this.life;
     this.particles.forEach((particle) => {
       particle.update()
       particle.updateOpacity(opacityStep);

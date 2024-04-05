@@ -8,6 +8,9 @@ import FBXObj from './fbx-obj';
 import OBJObj from './obj-obj';
 import ParticleSystem from './particle-system';
 import { IDestroyable } from '../interface/killable';
+import Effect from './effects';
+import Laser from './laser';
+import { SetVectorRandom } from '../helper/vector';
 
 class SpaceScene extends THREE.Scene {
 
@@ -114,7 +117,7 @@ class SpaceScene extends THREE.Scene {
 
   private testMesh?: THREE.Mesh;
   private objs: DynamicObj[] = [];
-  private particleSystems: ParticleSystem[] = [];
+  private effects: Effect[] = [];
 
   private test() {
 
@@ -144,14 +147,28 @@ class SpaceScene extends THREE.Scene {
     })
 
     document.addEventListener('mouseup', () => {
-      // this.spawnTest2();
-      this.spawnParticle();
+      this.fireTurrets();
     })
   }
 
-  private spawnParticle() {
-    const newParticleSystem = new ParticleSystem(this, this.world, 50, this.targetPosition, 100);
-    this.particleSystems.push(newParticleSystem);
+  private spawnParticle(origin: THREE.Vector3, target: THREE.Vector3) {
+    const newParticleSystem = new ParticleSystem(this, this.world, 50, target, 100);
+    this.effects.push(newParticleSystem);
+
+    const laser = new Laser(this, origin, target, 20);
+    this.effects.push(laser);
+  }
+
+  private laserDispersion = new THREE.Vector3(0.8, 0, 0.8);
+
+  private fireTurrets() {
+    if(!this.spaceShip) return;
+    this.spaceShip.turrets.forEach((turret) => {
+      const pos = new THREE.Vector3();
+      turret.getWorldPosition(pos)
+      const offset = SetVectorRandom(this.laserDispersion);
+      this.spawnParticle(pos, this.targetPosition.clone().add(offset));
+    })
   }
 
   private spawnTest2() {
@@ -209,8 +226,8 @@ class SpaceScene extends THREE.Scene {
     this.spaceShip?.updateMovement();
 
     this.objs.forEach((obj) => obj.update())
-    this.particleSystems.forEach((obj) => obj.updateParticles())
-    this.particleSystems = this.garbageCollection(this.particleSystems);
+    this.effects.forEach((obj) => obj.updateEffect())
+    this.effects = this.garbageCollection(this.effects);
   }
 
   private updateBGStars(time: number) {
