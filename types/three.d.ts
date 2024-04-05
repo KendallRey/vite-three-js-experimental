@@ -1,4 +1,6 @@
 type ThreeMeshOptions = {
-  scale?: THREE.Vector3;
-  position?: THREE.Vector3;
+  scale?: Vector3;
+  position?: Vector3;
+  materialProps?: MaterialOptions;
+  bodyProps?: CannonBodyOptions;
 }

@@ -6,6 +6,7 @@ type MeshType = THREE.Group<THREE.Object3DEventMap> | THREE.Object3D<THREE.Objec
 
 abstract class DynamicObj {
 
+  private isAlive = true;
   protected scene: THREE.Scene;
   protected world: CANNON.World;
   protected mesh?: MeshType;
@@ -35,6 +36,7 @@ abstract class DynamicObj {
 
   update() {
     if(!this.body) return;
+    if(!this.isAlive) return;
     this.mesh?.position.copy(this.body.position);
     this.mesh?.quaternion.copy(this.body.quaternion);
   }
@@ -52,6 +54,14 @@ abstract class DynamicObj {
     if(options?.scale){
       mesh.scale.copy(options.scale)
     }
+  }
+
+  protected kill(){
+    this.isAlive = false;
+    if(this.body)
+      this.world.removeBody(this.body);
+    if(this.mesh)
+      this.scene.remove(this.mesh);
   }
 }
 
