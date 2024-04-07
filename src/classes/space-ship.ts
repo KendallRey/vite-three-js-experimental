@@ -17,7 +17,7 @@ class SpaceShip extends DynamicObj {
   private downDir = new CANNON.Vec3(0, -1, 0);
 
   async init(scale: number, position: THREE.Vector3) {
-    this.model = await this.loader.loadAsync('assets/test_ship.fbx')
+    this.model = await this.loader.loadAsync('assets/three-js.fbx')
     this.model.scale.set(scale, scale, scale)
 
     this.model.traverse(child => {
