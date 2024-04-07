@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import SpaceShip from './space-ship';
 import DynamicObj from './dynamic-obj';
-import TestBox from './test-box';
 import Ground from './world-ground';
 import FBXObj from './fbx-obj';
 import OBJObj from './obj-obj';
@@ -14,7 +13,8 @@ import { SetVectorRandom } from '../helper/vector';
 
 class SpaceScene extends THREE.Scene {
 
-  private readonly camera: THREE.PerspectiveCamera
+  private readonly camera: THREE.PerspectiveCamera;
+  private readonly cameraContainer = new THREE.Group();
   private readonly clock = new THREE.Clock();
 
   private star?: THREE.Texture;
@@ -90,6 +90,8 @@ class SpaceScene extends THREE.Scene {
 
     this.camera.getWorldPosition(this.currentCameraPosition);
     this.camera.getWorldQuaternion(this.currentCameraRotation);
+
+    this.add(this.cameraContainer);
   }
 
   private initBGStarts(count: number) {
@@ -181,11 +183,17 @@ class SpaceScene extends THREE.Scene {
   // #region Player
 
   private spaceShip?: SpaceShip;
+  private spaceShipMesh?: THREE.Object3D<THREE.Object3DEventMap>;
   // #endregion
 
   private async initObjects() {
     this.spaceShip = new SpaceShip(this, this.world);
     await this.spaceShip.init(0.2, new THREE.Vector3(0, 5, 0));
+    this.spaceShipMesh = this.spaceShip.getMesh();
+
+    if(this.spaceShipMesh?.position)
+      this.cameraContainer.position.copy(this.spaceShipMesh.position);
+
     this.spaceShip.initController();
     const obj = this.spaceShip.get();
     if(!obj) return;
@@ -193,12 +201,12 @@ class SpaceScene extends THREE.Scene {
 
     this.objs.push(this.spaceShip);
 
-    obj.add(this.camera);
+    this.cameraContainer.add(this.camera);
 
     const { x: xPos, y: yPos , z: zPos } = this.currentCameraPosition;
     const { x: xRot, y: yRot , z: zRot, w } = this.currentCameraRotation;
 
-    this.camera.position.set(xPos * 40, yPos * 40, zPos * 40);
+    this.camera.position.set(xPos * 15, yPos * 15, zPos * 15);
     this.camera.quaternion.set(xRot, yRot, zRot, w);
 
     this.camera.position.sub(obj.position);
@@ -215,7 +223,6 @@ class SpaceScene extends THREE.Scene {
 
     this.objs.push(test2);
   }
-
   update(){
     const elapsedTime = this.clock.getElapsedTime();
 
@@ -225,9 +232,18 @@ class SpaceScene extends THREE.Scene {
     this.spaceShip?.updateTurrets(this.targetPosition);
     this.spaceShip?.updateMovement();
 
+    this.updateCamera();
+
     this.objs.forEach((obj) => obj.update())
     this.effects.forEach((obj) => obj.updateEffect())
     this.effects = this.garbageCollection(this.effects);
+  }
+
+  private lerpFactor = 0.1;
+
+  private updateCamera() {
+    if(!this.spaceShipMesh) return;
+    this.cameraContainer.position.lerp(this.spaceShipMesh.position, this.lerpFactor);
   }
 
   private updateBGStars(time: number) {

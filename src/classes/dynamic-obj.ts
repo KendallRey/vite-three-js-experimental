@@ -12,6 +12,9 @@ abstract class DynamicObj {
   protected mesh?: MeshType;
   protected body?: CANNON.Body;
 
+  getBody() { return this.body; }
+  getMesh() { return this.mesh; }
+
   constructor (scene: THREE.Scene, world: CANNON.World) {
     this.scene = scene;
     this.world = world;
