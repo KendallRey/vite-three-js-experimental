@@ -3,3 +3,5 @@ type Vector3 = {
   y: number;
   z: number;
 }
+
+type Axis = 'x' | 'y' | 'z'

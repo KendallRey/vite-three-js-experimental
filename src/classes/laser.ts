@@ -15,7 +15,7 @@ class Laser extends Effect {
   init(origin: THREE.Vector3, end: THREE.Vector3){
 
     const line = new THREE.LineCurve3(origin, end);
-    const geometry = new THREE.TubeGeometry(line, undefined, .1, 4);
+    const geometry = new THREE.TubeGeometry(line, undefined, .05, 4);
 
     const material = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, });
 

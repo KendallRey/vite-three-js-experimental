@@ -3,13 +3,11 @@ import * as CANNON from 'cannon-es';
 import SpaceShip from './space-ship';
 import DynamicObj from './dynamic-obj';
 import Ground from './world-ground';
-import FBXObj from './fbx-obj';
 import OBJObj from './obj-obj';
 import ParticleSystem from './particle-system';
 import { IDestroyable } from '../interface/killable';
 import Effect from './effects';
 import Laser from './laser';
-import { SetVectorRandom } from '../helper/vector';
 
 class SpaceScene extends THREE.Scene {
 
@@ -149,7 +147,7 @@ class SpaceScene extends THREE.Scene {
     })
 
     document.addEventListener('mouseup', () => {
-      this.fireTurrets();
+      this.spaceShip?.fireTurret(this.targetPosition, this.effects)
     })
   }
 
@@ -161,29 +159,11 @@ class SpaceScene extends THREE.Scene {
     this.effects.push(laser);
   }
 
-  private laserDispersion = new THREE.Vector3(0.8, 0, 0.8);
-
-  private fireTurrets() {
-    if(!this.spaceShip) return;
-    this.spaceShip.turrets.forEach((turret) => {
-      const pos = new THREE.Vector3();
-      turret.getWorldPosition(pos)
-      const offset = SetVectorRandom(this.laserDispersion);
-      this.spawnParticle(pos, this.targetPosition.clone().add(offset));
-    })
-  }
-
-  private spawnTest2() {
-    const offset = new THREE.Vector3(0, 2, 0);
-    const newObj = new FBXObj(this, this.world, 'assets/test_box');
-    newObj.init(this.targetPosition.add(offset), { scale: new THREE.Vector3(0.05, 0.05, 0.05)})
-    this.objs.push(newObj);
-  }
-
   // #region Player
 
   private spaceShip?: SpaceShip;
   private spaceShipMesh?: THREE.Object3D<THREE.Object3DEventMap>;
+
   // #endregion
 
   private async initObjects() {

@@ -7,6 +7,16 @@ export const ThreeVec3ToCannonVec3 = (threeVec3: THREE.Vector3) => {
   return new CANNON.Vec3(x, y, z);
 }
 
+export const RotateInAxis = (mesh: THREE.Object3D<THREE.Object3DEventMap>, target: THREE.Vector3, axis: Axis) => {
+  
+  const direction = new THREE.Vector3();
+  direction.subVectors(target, mesh.position);
+
+  const angle = Math.atan2(direction.x, direction.z);
+
+  mesh.rotation[axis] = angle;
+}
+
 export const CannonVec3ToThreeVec3 = (cannonVec3: CANNON.Vec3) => {
   const { x, y, z, } = cannonVec3;
   return new THREE.Vector3(x, y, z);

@@ -3,13 +3,17 @@ import * as CANNON from 'cannon-es'
 import { Group, Object3DEventMap } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import DynamicObj from './dynamic-obj';
-import {  ThreeVec3ToCannonVec3 } from '../helper/vector';
+import {  SetVectorRandom, ThreeVec3ToCannonVec3 } from '../helper/vector';
+import Turret from './turret';
+import Effect from './effects';
+import ParticleSystem from './particle-system';
+import Laser from './laser';
 
 class SpaceShip extends DynamicObj {
 
   private model?: Group<Object3DEventMap>
   private loader = new FBXLoader();
-  turrets: THREE.Object3D<THREE.Object3DEventMap>[] = [];
+  turrets: Turret[] = [];
   private targetAltitude = 10;
   private hoverOffsetForce = 200;
 
@@ -41,7 +45,8 @@ class SpaceShip extends DynamicObj {
 
   processGroup(obj: THREE.Object3D<THREE.Object3DEventMap>) {
     if(obj.name.includes('turret')){
-      this.turrets.push(obj);
+      const turret = new Turret(obj);
+      this.turrets.push(turret);
     }
   }
 
@@ -50,7 +55,31 @@ class SpaceShip extends DynamicObj {
   }
 
   updateTurrets(target: THREE.Vector3) {
-    this.turrets.forEach((turret) => turret.lookAt(target));
+    this.turrets.forEach((turret) => turret.updateTurret(target));
+  }
+
+  private laserDispersion = new THREE.Vector3(0.8, 0, 0.8);
+
+  fireTurret(target: THREE.Vector3, effects: Effect[]) {
+    this.turrets.forEach((turret) => {
+  
+      turret.gunMeshes.forEach((gun) => {
+
+        const pos = new THREE.Vector3();
+        gun.getWorldPosition(pos);
+        const offset = SetVectorRandom(this.laserDispersion);
+  
+        const newTarget = target.clone().add(offset);
+  
+        const newParticleSystem = new ParticleSystem(this.scene, this.world, 50, newTarget, 100);
+        effects.push(newParticleSystem);
+    
+        const laser = new Laser(this.scene, pos, newTarget, 20);
+        effects.push(laser);
+
+      })
+
+    })
   }
 
   private keyDown = new Set<string>();
