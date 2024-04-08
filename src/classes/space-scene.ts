@@ -169,7 +169,7 @@ class SpaceScene extends THREE.Scene {
 
   private async initObjects() {
     this.spaceShip = new SpaceShip(this, this.world);
-    await this.spaceShip.init(0.2, new THREE.Vector3(0, 5, 0));
+    await this.spaceShip.init(0.2, new THREE.Vector3(0, 10, 0), 'assets/three-js');
     this.spaceShipMesh = this.spaceShip.getMesh();
 
     if(this.spaceShipMesh?.position)

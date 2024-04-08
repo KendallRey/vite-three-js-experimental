@@ -1,48 +1,14 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es'
-import { Group, Object3DEventMap } from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
-import DynamicObj from './dynamic-obj';
-import {  SetVectorRandom, ThreeVec3ToCannonVec3 } from '../helper/vector';
+import {  SetVectorRandom } from '../helper/vector';
 import Turret from './turret';
 import Effect from './effects';
 import ParticleSystem from './particle-system';
 import Laser from './laser';
 import ExplosionField from './explosion-field';
+import HoverShip from './hover-ship';
 
-class SpaceShip extends DynamicObj {
-
-  private model?: Group<Object3DEventMap>
-  private loader = new FBXLoader();
-  turrets: Turret[] = [];
-  private targetAltitude = 10;
-  private hoverOffsetForce = 200;
-
-  private ray = new CANNON.Ray();
-  private downDir = new CANNON.Vec3(0, -1, 0);
-
-  async init(scale: number, position: THREE.Vector3) {
-    this.model = await this.loader.loadAsync('assets/three-js.fbx')
-    this.model.scale.set(scale, scale, scale)
-
-    this.model.traverse(child => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        mesh.material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        this.processGroup(mesh)
-      }
-    });
-
-    const body = this.useBoxShape(this.model, { mass: 100, linearDamping: 0.2, angularDamping: 0.6 })
-
-    const newVec3 = ThreeVec3ToCannonVec3(position);
-    body.position.copy(newVec3);
-
-    body.angularFactor = new CANNON.Vec3(0, 1, 0);
-
-    this.setObj(this.model, body);
-  }
-
+class SpaceShip extends HoverShip {
 
   processGroup(obj: THREE.Object3D<THREE.Object3DEventMap>) {
     if(obj.name.includes('turret')){
@@ -102,23 +68,9 @@ class SpaceShip extends DynamicObj {
     this.keyDown.delete(ev.key.toLowerCase());
   }
 
-  private steeringForce = new CANNON.Vec3(0, 300, 0);
-  private thrustForce = new CANNON.Vec3(0, 0, 0);
 
   private updateInput() {
     if(!this.body) return;
-
-    const startPos = this.body.position;
-    this.ray.from.copy(startPos);
-    this.ray.to.copy(startPos.vadd(this.downDir.scale(this.targetAltitude)));
-
-    const raycastResult = new CANNON.RaycastResult();
-    this.world.rayTest(this.ray.from, this.ray.to, raycastResult);
-
-    if(raycastResult.hasHit) {
-      const { distance } = raycastResult;
-      this.thrustForce.y = Math.abs(((distance - this.targetAltitude) * 1.1) * this.hoverOffsetForce);
-    }
 
     const left = this.keyDown.has('a') || this.keyDown.has('arrowleft');
     const right = this.keyDown.has('d') || this.keyDown.has('arrowright');
@@ -139,7 +91,6 @@ class SpaceShip extends DynamicObj {
       this.body.applyTorque(this.steeringForce)
     if(right)
       this.body.applyTorque(this.steeringForce.clone().scale(-1))
-
   }
 
   
@@ -149,6 +100,7 @@ class SpaceShip extends DynamicObj {
 
     if(!this.body) return;
   
+    this.updateThrust();
     this.updateInput();
 
     this.body.applyLocalForce(this.thrustForce, new CANNON.Vec3(0,0,0));
