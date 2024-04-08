@@ -8,6 +8,7 @@ import Turret from './turret';
 import Effect from './effects';
 import ParticleSystem from './particle-system';
 import Laser from './laser';
+import ExplosionField from './explosion-field';
 
 class SpaceShip extends DynamicObj {
 
@@ -71,11 +72,14 @@ class SpaceShip extends DynamicObj {
   
         const newTarget = target.clone().add(offset);
   
-        const newParticleSystem = new ParticleSystem(this.scene, this.world, 50, newTarget, 100);
+        const newParticleSystem = new ParticleSystem(this.scene, this.world, 30, newTarget, 100);
         effects.push(newParticleSystem);
     
         const laser = new Laser(this.scene, pos, newTarget, 20);
         effects.push(laser);
+
+        const explosion = new ExplosionField(this.world, newTarget, 3, 2);
+        effects.push(explosion);
 
       })
 
