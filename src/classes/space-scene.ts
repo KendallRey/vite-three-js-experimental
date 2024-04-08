@@ -8,6 +8,7 @@ import ParticleSystem from './particle-system';
 import { IDestroyable } from '../interface/killable';
 import Effect from './effects';
 import Laser from './laser';
+import Spawner from './spawner';
 
 class SpaceScene extends THREE.Scene {
 
@@ -202,6 +203,10 @@ class SpaceScene extends THREE.Scene {
     await test2.init(new THREE.Vector3(-20, 2, 0), { scale: new THREE.Vector3(1, 1, 1)})
 
     this.objs.push(test2);
+
+    const spawner = new Spawner(this, this.world, { x: 10, y: 10});
+    spawner.init();
+    this.objs.push(...spawner.objs);
   }
   update(){
     const elapsedTime = this.clock.getElapsedTime();
