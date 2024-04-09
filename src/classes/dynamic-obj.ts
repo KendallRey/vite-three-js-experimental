@@ -53,6 +53,31 @@ abstract class DynamicObj {
     return body;
   }
 
+
+
+  protected useConvexShape(mesh: THREE.Group<THREE.Object3DEventMap>, options?: CannonBodyOptions) {
+    const boxShapes: CANNON.Box[] = [];
+    mesh.children.forEach((child) => {
+      if(child instanceof THREE.Mesh) { 
+        const dimensions = GetGroupDimensions(mesh);
+        const boxShape = new CANNON.Box(new CANNON.Vec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
+        boxShapes.push(boxShape);
+      }
+    })
+
+    const boxBodies = boxShapes.map(shape => {
+      return new CANNON.Body({
+          mass: 0,
+          shape: shape,
+      });
+    });
+    const compoundBody = new CANNON.Body({ mass: 1, ...options });
+    boxBodies.forEach(body => {
+      compoundBody.addShape(body.shapes[0], body.position, body.quaternion);
+    });
+    return compoundBody
+  }
+
   protected setOptions(mesh: MeshType, options?: ThreeMeshOptions){
     if(options?.scale){
       mesh.scale.copy(options.scale)

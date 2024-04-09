@@ -25,7 +25,7 @@ export default class Ground {
       opacity: 1,
     });
     this.planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-
+    this.planeMesh.receiveShadow = true
     this.planeMesh.layers.set(1);
     this.planeMesh.rotateX(Math.PI * .5);
     this.planeMesh.rotateY(Math.PI);

@@ -44,7 +44,7 @@ class SpaceShip extends HoverShip {
         const laser = new Laser(this.scene, pos, newTarget, 20);
         effects.push(laser);
 
-        const explosion = new ExplosionField(this.world, newTarget, 3, 2);
+        const explosion = new ExplosionField(this.world, newTarget, 3, 10);
         effects.push(explosion);
 
       })
@@ -77,15 +77,22 @@ class SpaceShip extends HoverShip {
     const forward = this.keyDown.has('w') || this.keyDown.has('arrowup');
     const backward = this.keyDown.has('s') || this.keyDown.has('arrowdown');
 
-    if(forward){
+    const leftStrafe = this.keyDown.has('q');
+    const rightStrafe = this.keyDown.has('e');
+  
+    if(forward)
       this.thrustForce.z = 220
-    }
-    else if (backward) {
+    else if (backward)
       this.thrustForce.z = -220
-    }
-    else {
+    else 
       this.thrustForce.z = 0
-    }
+
+    if(leftStrafe)
+      this.thrustForce.x = 220
+    else if (rightStrafe)
+      this.thrustForce.x = -220
+    else 
+      this.thrustForce.x = 0
 
     if(left)
       this.body.applyTorque(this.steeringForce)

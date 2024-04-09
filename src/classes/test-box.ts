@@ -12,6 +12,8 @@ class TestBox extends DynamicObj {
     const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.copy(position);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
 
     const shape = new CANNON.Box(new CANNON.Vec3(size / 2, size / 2, size / 2));
     const body = new CANNON.Body({ mass: 1, shape });

@@ -9,6 +9,8 @@ import { IDestroyable } from '../interface/killable';
 import Effect from './effects';
 import Laser from './laser';
 import Spawner from './spawner';
+import HoverShip from './hover-ship';
+import Mob from './mobs';
 
 class SpaceScene extends THREE.Scene {
 
@@ -24,6 +26,7 @@ class SpaceScene extends THREE.Scene {
   private mousePosition = new THREE.Vector2();
   private targetPosition = new THREE.Vector3();
   private raycaster = new THREE.Raycaster();
+  private hoverShips: HoverShip[] = [];
   private groundMesh?: THREE.Mesh;
   private world: CANNON.World;
 
@@ -62,6 +65,7 @@ class SpaceScene extends THREE.Scene {
     new Ground(this, this.world, 2000, 2000);
   }
 
+
   private initLighting() {
     const pointLight = new THREE.PointLight(0xffffff, 0.1);
     pointLight.position.x = 2;
@@ -70,9 +74,6 @@ class SpaceScene extends THREE.Scene {
     this.add(pointLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
-    pointLight.position.x = 2;
-    pointLight.position.y = 3;
-    pointLight.position.z = 4;
     this.add(directionalLight);
   }
 
@@ -122,9 +123,9 @@ class SpaceScene extends THREE.Scene {
 
   private test() {
 
-    const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0,0.5,0), 20, 0xff0000);
-    const yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0,0.5,0), 20, 0x00ff00);
-    const zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0,0.5,0), 20, 0x0000ff);
+    const xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0,0.5,0), 50, 0xff0000);
+    const yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0,0.5,0), 50, 0x00ff00);
+    const zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0,0.5,0), 50, 0x0000ff);
 
     this.add(xAxis);
     this.add(yAxis);
@@ -169,7 +170,7 @@ class SpaceScene extends THREE.Scene {
 
   private async initObjects() {
     this.spaceShip = new SpaceShip(this, this.world);
-    await this.spaceShip.init(0.2, new THREE.Vector3(0, 10, 0), 'assets/three-js');
+    await this.spaceShip.init(0.2, new THREE.Vector3(0, 20, 0), 'assets/three-js');
     this.spaceShipMesh = this.spaceShip.getMesh();
 
     if(this.spaceShipMesh?.position)
@@ -195,19 +196,28 @@ class SpaceScene extends THREE.Scene {
     this.camera.quaternion.premultiply(obj.quaternion.invert());
 
     const test = new OBJObj(this, this.world, 'assets/KR_Circle');
-    await test.init(new THREE.Vector3(-20, 7, 0), { scale: new THREE.Vector3(10, 10, 10)})
+    await test.init(new THREE.Vector3(-20, 7, 0), { scale: new THREE.Vector3(10, 10, 10), bodyProps: { mass: 100}})
 
     this.objs.push(test);
 
     const test2 = new OBJObj(this, this.world, 'assets/test_cube');
-    await test2.init(new THREE.Vector3(-20, 2, 0), { scale: new THREE.Vector3(1, 1, 1)})
+    await test2.init(new THREE.Vector3(-20, 2, 0), { scale: new THREE.Vector3(1, 1, 1), bodyProps: { mass: 100}})
 
     this.objs.push(test2);
 
-    const spawner = new Spawner(this, this.world, { x: 10, y: 10});
+    const spawner = new Spawner(this, this.world, { x: 5, y: 5});
     spawner.init();
     this.objs.push(...spawner.objs);
+
+    const mob = new Mob(this, this.world);
+    await mob.init(0.2, new THREE.Vector3(20, 20, 20), 'assets/mob');
+    const playerBody = this.spaceShip.getBody();
+    if(playerBody)
+      mob.setTarget(playerBody)
+    this.objs.push(mob);
+    this.hoverShips.push(mob);
   }
+
   update(){
     const elapsedTime = this.clock.getElapsedTime();
 
@@ -216,6 +226,8 @@ class SpaceScene extends THREE.Scene {
 
     this.spaceShip?.updateTurrets(this.targetPosition);
     this.spaceShip?.updateMovement();
+
+    this.hoverShips.forEach((ship) => ship.updateMovement())
 
     this.updateCamera();
 

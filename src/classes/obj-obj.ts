@@ -25,13 +25,11 @@ class OBJObj extends DynamicObj {
     this.objLoader.setMaterials(objMtl);
 
     this.mesh = await this.objLoader.loadAsync(`${this.url}.obj`);
-
     this.setOptions(this.mesh, options);
     const body = this.useBoxShape(this.mesh);
     const newVec3 = ThreeVec3ToCannonVec3(position);
     body.position.copy(newVec3);
 
-    body.angularFactor = new CANNON.Vec3(0, 0, 0);
     this.setObj(this.mesh, body);
   }
 }

@@ -30,12 +30,12 @@ class HoverShip extends DynamicObj {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
         mesh.material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        mesh.castShadow = true;
         this.processGroup(mesh)
       }
     });
 
-    const body = this.useBoxShape(this.model, { mass: 100, linearDamping: 0.2, angularDamping: 0.6, ...bodyProps })
-
+    const body = this.useBoxShape(this.model, { mass: 100, linearDamping: 0.2, angularDamping: 0.6, ...bodyProps });
     const newVec3 = ThreeVec3ToCannonVec3(position);
     body.position.copy(newVec3);
 
