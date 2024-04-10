@@ -17,15 +17,13 @@ export default class Ground {
     this.groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
 
     const planeGeometry = new THREE.PlaneGeometry(width, height);
-    const planeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      // color: 0xFDEAD7,
+    const planeMaterial = new THREE.MeshStandardMaterial({
+      // color: 0x000000,
+      color: 0xFDEAD7,
       side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 1,
     });
     this.planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-    this.planeMesh.receiveShadow = true
+    // this.planeMesh.receiveShadow = true;
     this.planeMesh.layers.set(1);
     this.planeMesh.rotateX(Math.PI * .5);
     this.planeMesh.rotateY(Math.PI);

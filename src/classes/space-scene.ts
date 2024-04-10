@@ -67,14 +67,24 @@ class SpaceScene extends THREE.Scene {
 
 
   private initLighting() {
-    const pointLight = new THREE.PointLight(0xffffff, 0.1);
-    pointLight.position.x = 2;
-    pointLight.position.y = 3;
-    pointLight.position.z = 4;
-    this.add(pointLight);
+    // const pointLight = new THREE.PointLight(0xffffff, 100);
+    // pointLight.position.x = 0;
+    // pointLight.position.y = 10;
+    // pointLight.position.z = 0;
+    // pointLight.castShadow= true;
+    // this.add(pointLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
-    this.add(directionalLight);
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    // directionalLight.castShadow = true;
+    // directionalLight.shadow.camera.top = 10;
+    // directionalLight.shadow.camera.bottom = -10;
+    // directionalLight.shadow.camera.left = 10;
+    // directionalLight.shadow.camera.right = -10;
+    // directionalLight.shadow.camera.far = 10;
+    // directionalLight.shadow.camera.near = -50;
+    // this.add(directionalLight);
+    
+    // this.add(new THREE.CameraHelper(directionalLight.shadow.camera))
   }
 
   private currentCameraPosition = new THREE.Vector3();
@@ -179,6 +189,14 @@ class SpaceScene extends THREE.Scene {
     this.spaceShip.initController();
     const obj = this.spaceShip.get();
     if(!obj) return;
+
+    const pointLight = new THREE.PointLight(0x55EFC4, 200);
+    pointLight.position.x = 0;
+    pointLight.position.y = 0;
+    pointLight.position.z = 70;
+    pointLight.castShadow= true;
+    obj.add(pointLight);
+    
     this.add(obj);
 
     this.objs.push(this.spaceShip);

@@ -10,12 +10,8 @@ const height = window.innerHeight;
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById('root') as HTMLCanvasElement,
-  powerPreference: "high-performance",
-	antialias: false,
-	stencil: false,
-	depth: false
 })
-
+renderer.shadowMap.enabled = true;
 renderer.setSize(width, height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 // renderer.setClearColor(new THREE.Color('#21282a'), 1);
@@ -72,13 +68,14 @@ effect.inverted = true;
 composer.addPass(effectPass);
 
 function tick() {
-  requestAnimationFrame(tick);
 
   scene.update();
   world.fixedStep();
 
+  // world.step(1 / 60);
   composer.render();
   // renderer.render(scene, mainCamera);
+  requestAnimationFrame(tick);
 }
 
 tick();
