@@ -28,6 +28,14 @@ export const GetGroupDimensions = (group: THREE.Object3D<THREE.Object3DEventMap>
   return boundingBox.getSize(new THREE.Vector3());
 }
 
+export const GetGroupDimensionsCenter = (group: THREE.Object3D<THREE.Object3DEventMap>): THREE.Vector3 => {
+  const boundingBox = new THREE.Box3();
+  boundingBox.setFromObject(group, true);
+  const center = new THREE.Vector3();
+  boundingBox.getCenter(center);
+  return center
+}
+
 export const SetVectorRandom = (vector: Vector3) => {
   const x = getRandomFloat(vector.x * -1, vector.x);
   const y = getRandomFloat(vector.y * -1, vector.y);
