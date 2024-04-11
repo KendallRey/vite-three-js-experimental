@@ -59,7 +59,7 @@ abstract class DynamicObj {
     const boxShapes: CANNON.Box[] = [];
     mesh.children.forEach((child) => {
       if(child instanceof THREE.Mesh) { 
-        const dimensions = GetGroupDimensions(mesh);
+        const dimensions = GetGroupDimensions(child);
         const boxShape = new CANNON.Box(new CANNON.Vec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
         boxShapes.push(boxShape);
       }
