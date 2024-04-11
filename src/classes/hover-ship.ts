@@ -44,6 +44,10 @@ class HoverShip extends DynamicObj {
     this.setObj(this.model, body);
   }
 
+  setTargetAltitude(altitude: number) {
+    this.targetAltitude = altitude;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   fireTurret(_target: THREE.Vector3, _effects: Effect[]) {}
 
@@ -65,6 +69,17 @@ class HoverShip extends DynamicObj {
   }
 
   protected updateThrust() {
+    this.useFixedAltitude();
+  }
+
+  protected useFixedAltitude() {
+    if(!this.body) return;
+    const distance = this.body.position.y;
+    if(distance > this.targetAltitude) return;
+    this.thrustForce.y = Math.abs(((distance - this.targetAltitude) * this.thrustForceMultiplier) * this.hoverOffsetForce);
+  }
+
+  protected useRaycast() {
     if(!this.body) return;
     const startPos = this.body.position;
     this.ray.from.copy(startPos);
