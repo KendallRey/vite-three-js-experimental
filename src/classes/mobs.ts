@@ -1,21 +1,29 @@
 import * as CANNON from 'cannon-es';
 import HoverShip from "./hover-ship";
+import { IEnemy } from '../interface/enemy';
 
-class Mob extends HoverShip {
+class Mob extends HoverShip implements IEnemy {
   
-  private target?: CANNON.Body;
+  health = 100;
+  currentHealth = 100;
+  private targetRb?: CANNON.Body;
 
-  updateMovement() {
-    if(!this.mesh) return;
-
-    if(!this.body) return;
-    this.updateThrust();
-    this.body.applyLocalForce(this.thrustForce, new CANNON.Vec3(0,0,0));
-    // this.body.applyTorque(this.steeringForce);
+  takeDamage(dmg: number): boolean {
+    this.currentHealth -= dmg;
+    return this.currentHealth <= 0;
   }
 
-  setTarget(target: CANNON.Body) {
-    this.target = target;
+  updateMovement() {
+    if(!this.body) return;
+    this.updateThrust();
+    if(this.targetRb)
+      this.setSteer(this.targetRb, this.body);
+    this.body.applyLocalForce(this.thrustForce, new CANNON.Vec3(0,0,0));
+    this.body.applyTorque(this.steeringForce);
+  }
+
+  setTarget(targetRb: CANNON.Body) {
+    this.targetRb = targetRb;
   }
 
   setSteer(target: CANNON.Body, body: CANNON.Body) {
