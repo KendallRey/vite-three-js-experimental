@@ -26,7 +26,6 @@ class SpaceScene extends THREE.Scene {
   private mousePosition = new THREE.Vector2();
   private targetPosition = new THREE.Vector3();
   private raycaster = new THREE.Raycaster();
-  private hoverShips: HoverShip[] = [];
   private groundMesh?: THREE.Mesh;
   private world: CANNON.World;
 
@@ -49,6 +48,7 @@ class SpaceScene extends THREE.Scene {
     this.initListeners();
 
     this.initCamera();
+    await this.spawnPlayer();
     this.initObjects();
   }
 
@@ -176,9 +176,7 @@ class SpaceScene extends THREE.Scene {
   private spaceShip?: SpaceShip;
   private spaceShipMesh?: THREE.Object3D<THREE.Object3DEventMap>;
 
-  // #endregion
-
-  private async initObjects() {
+  private async spawnPlayer() {
     this.spaceShip = new SpaceShip(this, this.world);
     await this.spaceShip.init(0.2, new THREE.Vector3(0, 20, 0), 'assets/three-js');
     this.spaceShipMesh = this.spaceShip.getMesh();
@@ -187,17 +185,17 @@ class SpaceScene extends THREE.Scene {
       this.cameraContainer.position.copy(this.spaceShipMesh.position);
 
     this.spaceShip.initController();
-    const obj = this.spaceShip.get();
-    if(!obj) return;
+    const objMesh = this.spaceShip.getMesh();
+    if(!objMesh) return;
 
     const pointLight = new THREE.PointLight(0x55EFC4, 200);
     pointLight.position.x = 0;
     pointLight.position.y = 0;
     pointLight.position.z = 70;
     pointLight.castShadow= true;
-    obj.add(pointLight);
+    objMesh.add(pointLight);
     
-    this.add(obj);
+    this.add(objMesh);
 
     this.objs.push(this.spaceShip);
 
@@ -209,9 +207,14 @@ class SpaceScene extends THREE.Scene {
     this.camera.position.set(xPos * 15, yPos * 15, zPos * 15);
     this.camera.quaternion.set(xRot, yRot, zRot, w);
 
-    this.camera.position.sub(obj.position);
-    this.camera.position.applyQuaternion(obj.quaternion.invert());
-    this.camera.quaternion.premultiply(obj.quaternion.invert());
+    this.camera.position.sub(objMesh.position);
+    this.camera.position.applyQuaternion(objMesh.quaternion.invert());
+    this.camera.quaternion.premultiply(objMesh.quaternion.invert());
+  }
+
+  // #endregion
+
+  private async initObjects() {
 
     const test = new OBJObj(this, this.world, 'assets/KR_Circle');
     await test.init(new THREE.Vector3(-20, 7, 0), { scale: new THREE.Vector3(10, 10, 10), bodyProps: { mass: 100}})
@@ -227,6 +230,19 @@ class SpaceScene extends THREE.Scene {
     spawner.init();
     this.objs.push(...spawner.objs);
 
+    this.spawnMob();
+  }
+
+  // #region Hover Ships 
+
+  private hoverShips: HoverShip[] = [];
+
+  // #endregion
+
+  // #region Mobs
+
+  async spawnMob() {
+    if(!this.spaceShip) return;
     const mob = new Mob(this, this.world);
     await mob.init(0.2, new THREE.Vector3(20, 20, 20), 'assets/mob');
     const playerBody = this.spaceShip.getBody();
@@ -235,6 +251,8 @@ class SpaceScene extends THREE.Scene {
     this.objs.push(mob);
     this.hoverShips.push(mob);
   }
+
+  // #endregion
 
   update(){
     const elapsedTime = this.clock.getElapsedTime();

@@ -17,7 +17,7 @@ class SpaceShip extends HoverShip {
     }
   }
 
-  get() {
+  getMesh() {
     return this.mesh;
   }
 
