@@ -74,17 +74,17 @@ class SpaceScene extends THREE.Scene {
     // pointLight.castShadow= true;
     // this.add(pointLight);
 
-    // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    // directionalLight.castShadow = true;
-    // directionalLight.shadow.camera.top = 10;
-    // directionalLight.shadow.camera.bottom = -10;
-    // directionalLight.shadow.camera.left = 10;
-    // directionalLight.shadow.camera.right = -10;
-    // directionalLight.shadow.camera.far = 10;
-    // directionalLight.shadow.camera.near = -50;
-    // this.add(directionalLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.camera.top = 10;
+    directionalLight.shadow.camera.bottom = -10;
+    directionalLight.shadow.camera.left = 10;
+    directionalLight.shadow.camera.right = -10;
+    directionalLight.shadow.camera.far = 10;
+    directionalLight.shadow.camera.near = -50;
+    this.add(directionalLight);
     
-    // this.add(new THREE.CameraHelper(directionalLight.shadow.camera))
+    this.add(new THREE.CameraHelper(directionalLight.shadow.camera))
   }
 
   private currentCameraPosition = new THREE.Vector3();
@@ -218,10 +218,15 @@ class SpaceScene extends THREE.Scene {
 
     this.objs.push(test);
 
-    const test2 = new OBJObj(this, this.world, 'assets/test_cube');
+    const test2 = new OBJObj(this, this.world, 'assets/kr1');
     await test2.init(new THREE.Vector3(-20, 2, 0), { scale: new THREE.Vector3(1, 1, 1), bodyProps: { mass: 100}})
 
     this.objs.push(test2);
+  
+    const test3 = new OBJObj(this, this.world, 'assets/kr2');
+    await test3.init(new THREE.Vector3(-10, 2, 0), { scale: new THREE.Vector3(1, 1, 1), bodyProps: { mass: 100}})
+
+    this.objs.push(test3);
 
     const spawner = new Spawner(this, this.world, { x: 5, y: 5});
     spawner.init();
