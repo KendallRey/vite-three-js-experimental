@@ -17,7 +17,7 @@ class Particle extends DynamicObj {
     const positionOffset = SetVectorRandom({ x: .4, y: .4, z: .4});
     const newPosition = position.clone().add(positionOffset)
 
-    const geometry = new THREE.SphereGeometry(x, y, z);
+    const geometry = new THREE.BoxGeometry(x, y, z);
     const material = new THREE.MeshBasicMaterial(options.materialProps);
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.copy(newPosition);

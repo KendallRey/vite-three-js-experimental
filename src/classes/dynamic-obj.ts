@@ -1,26 +1,38 @@
-import * as THREE from 'three';
-import * as CANNON from 'cannon-es'
+import {
+  Object3D as TObject3D,
+  Object3DEventMap as TObject3DEventMap,
+  Scene as TScene,
+  Group as TGroup,
+  Mesh as TMesh,
+} from 'three';
+import { 
+  World as CWorld,
+  Body as CBody,
+  Box as CBox,
+  Vec3 as CVec3
+} from 'cannon-es';
 import { GetGroupDimensions } from '../helper/vector';
 
-type MeshType = THREE.Object3D<THREE.Object3DEventMap>
+
+type MeshType = TObject3D<TObject3DEventMap>
 
 abstract class DynamicObj {
 
   private isAlive = true;
-  protected scene: THREE.Scene;
-  protected world: CANNON.World;
+  protected scene: TScene;
+  protected world: CWorld;
   protected mesh?: MeshType;
-  protected body?: CANNON.Body;
+  protected body?: CBody;
 
   getBody() { return this.body; }
   getMesh() { return this.mesh; }
 
-  constructor (scene: THREE.Scene, world: CANNON.World) {
+  constructor (scene: TScene, world: CWorld) {
     this.scene = scene;
     this.world = world;
   }
 
-  protected setObj( mesh: MeshType, body: CANNON.Body) {
+  protected setObj( mesh: MeshType, body: CBody) {
     this.mesh = mesh;
     this.body = body;
     this.scene.add(this.mesh);
@@ -32,7 +44,7 @@ abstract class DynamicObj {
     this.scene.add(this.mesh);
   }
 
-  protected setBody( body: CANNON.Body ) {
+  protected setBody( body: CBody ) {
     this.body = body;
     this.world.addBody(this.body);
   }
@@ -47,31 +59,31 @@ abstract class DynamicObj {
   protected useBoxShape(mesh: MeshType, options?: CannonBodyOptions) {
     const dimensions = GetGroupDimensions(mesh);
 
-    const boxShape = new CANNON.Box(new CANNON.Vec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
+    const boxShape = new CBox(new CVec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
 
-    const body = new CANNON.Body({ mass: 1, shape: boxShape, ...options });
+    const body = new CBody({ mass: 1, shape: boxShape, ...options });
     return body;
   }
 
 
 
-  protected useConvexShape(mesh: THREE.Group<THREE.Object3DEventMap>, options?: CannonBodyOptions) {
-    const boxShapes: CANNON.Box[] = [];
+  protected useConvexShape(mesh: TGroup<TObject3DEventMap>, options?: CannonBodyOptions) {
+    const boxShapes: CBox[] = [];
     mesh.children.forEach((child) => {
-      if(child instanceof THREE.Mesh) { 
+      if(child instanceof TMesh) { 
         const dimensions = GetGroupDimensions(child);
-        const boxShape = new CANNON.Box(new CANNON.Vec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
+        const boxShape = new CBox(new CVec3(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2));
         boxShapes.push(boxShape);
       }
     })
 
     const boxBodies = boxShapes.map(shape => {
-      return new CANNON.Body({
+      return new CBody({
           mass: 0,
           shape: shape,
       });
     });
-    const compoundBody = new CANNON.Body({ mass: 1, ...options });
+    const compoundBody = new CBody({ mass: 1, ...options });
     boxBodies.forEach(body => {
       compoundBody.addShape(body.shapes[0], body.position, body.quaternion);
     });
