@@ -36,6 +36,7 @@ class HoverShip extends DynamicObj {
     });
 
     const body = this.useBoxShape(this.model, { mass: 100, linearDamping: 0.2, angularDamping: 0.6, ...bodyProps });
+    // const body = this.useConvexShape(this.model, { mass: 100, linearDamping: 0.2, angularDamping: 0.6, ...bodyProps });
     const newVec3 = ThreeVec3ToCannonVec3(position);
     body.position.copy(newVec3);
 

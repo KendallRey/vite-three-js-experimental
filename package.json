@@ -10,9 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/cannon": "^6.6.0",
+    "@react-three/fiber": "^8.16.3",
     "@types/cannon": "^0.1.12",
     "cannon": "^0.6.2",
     "cannon-es": "^0.20.0",
+    "cannon-es-debugger": "^1.0.0",
     "postprocessing": "^6.35.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

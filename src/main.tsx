@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es'
+import CannonDebugger from 'cannon-es-debugger';
 
 import SpaceScene from './classes/space-scene';
 import './index.css';
@@ -67,10 +68,13 @@ effect.inverted = true;
 
 composer.addPass(effectPass);
 
+const cannonDebugger = CannonDebugger(scene, world);
+
 function tick() {
 
   scene.update();
   world.fixedStep();
+  cannonDebugger.update();
 
   // world.step(1 / 60);
   composer.render();

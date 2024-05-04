@@ -11,6 +11,7 @@ import Laser from './laser';
 import Spawner from './spawner';
 import HoverShip from './hover-ship';
 import Mob from './mobs';
+import { spawnLogo } from '../spawners/spawn-logo';
 
 class SpaceScene extends THREE.Scene {
 
@@ -216,24 +217,11 @@ class SpaceScene extends THREE.Scene {
 
   private async initObjects() {
 
-    const test = new OBJObj(this, this.world, 'assets/KR_Circle');
-    await test.init(new THREE.Vector3(-20, 7, 0), { scale: new THREE.Vector3(10, 10, 10), bodyProps: { mass: 100}})
+    await spawnLogo({ scene: this, world: this.world, objs: this.objs });
 
-    this.objs.push(test);
-
-    const test2 = new OBJObj(this, this.world, 'assets/kr1');
-    await test2.init(new THREE.Vector3(-20, 2, 0), { scale: new THREE.Vector3(1, 1, 1), bodyProps: { mass: 100}})
-
-    this.objs.push(test2);
-  
-    const test3 = new OBJObj(this, this.world, 'assets/kr2');
-    await test3.init(new THREE.Vector3(-10, 2, 0), { scale: new THREE.Vector3(1, 1, 1), bodyProps: { mass: 100}})
-
-    this.objs.push(test3);
-
-    const spawner = new Spawner(this, this.world, { x: 5, y: 5});
-    spawner.init();
-    this.objs.push(...spawner.objs);
+    // const spawner = new Spawner(this, this.world, { x: 5, y: 5});
+    // spawner.init();
+    // this.objs.push(...spawner.objs);
 
     this.spawnMob();
   }
