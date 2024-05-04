@@ -19,7 +19,8 @@
     "postprocessing": "^6.35.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "three": "^0.163.0"
+    "three": "^0.163.0",
+    "three-to-cannon": "^5.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

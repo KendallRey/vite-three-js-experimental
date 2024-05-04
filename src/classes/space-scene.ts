@@ -223,7 +223,7 @@ class SpaceScene extends THREE.Scene {
     // spawner.init();
     // this.objs.push(...spawner.objs);
 
-    this.spawnMob();
+    // this.spawnMob();
   }
 
   // #region Hover Ships 

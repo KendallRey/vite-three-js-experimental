@@ -27,8 +27,10 @@ class OBJObj extends DynamicObj {
     this.mesh = await this.objLoader.loadAsync(`${this.url}.obj`);
     this.setOptions(this.mesh, options);
     // const body = this.useBoxShape(this.mesh);
-    const body = this.useConvexShape(this.mesh);
+    // const body = this.useConvexShape(this.mesh);
     // const body = this.useCompoundShape(this.mesh);
+    // const body = this.useTrimeshShape(this.mesh);
+    const body = this.useTTCConvexShape(this.mesh);
     const newVec3 = ThreeVec3ToCannonVec3(position);
     body.position.copy(newVec3);
 

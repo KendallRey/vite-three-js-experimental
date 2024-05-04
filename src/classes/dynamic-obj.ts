@@ -4,7 +4,6 @@ import {
   Scene as TScene,
   Group as TGroup,
   Mesh as TMesh,
-  BufferGeometry as TBufferGeometry,
 } from 'three';
 import { 
   World as CWorld,
@@ -14,10 +13,10 @@ import {
   Trimesh as CTrimesh,
   ConvexPolyhedron as CConvexPolyhedron,
 } from 'cannon-es';
+import { threeToCannon, ShapeType } from 'three-to-cannon';
 import { GetGroupDimensions } from '../helper/vector';
 
-
-type MeshType = TObject3D<TObject3DEventMap>
+type MeshType = TGroup<TObject3DEventMap> | TObject3D<TObject3DEventMap>
 
 abstract class DynamicObj {
 
@@ -111,9 +110,15 @@ abstract class DynamicObj {
     }
   }
 
+  protected useTTCConvexShape(mesh: MeshType, options?: CannonBodyOptions) {
+    const result = threeToCannon(mesh, {type: ShapeType.HULL});
+    const { shape } = result;
+    const body = new CBody({ mass: 100, shape: shape, ...options });
+    return body;
+  }
+
   protected useConvexShape(mesh: TGroup<TObject3DEventMap>, options?: CannonBodyOptions){
-    const mainMesh = mesh.children[0];
-    console.log("test", mainMesh)
+    const mainMesh = mesh.children.find((child) => child.name.includes('_collider'));
     if(mainMesh instanceof TMesh) {
 
       const positionsArr = mainMesh.geometry.attributes.position.array as number[];

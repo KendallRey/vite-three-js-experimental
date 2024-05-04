@@ -13,14 +13,14 @@ export const spawnLogo = async (props: ISpawner) => {
   objs.push(k1);
 
   const k2 = new OBJObj(scene, world, 'assets/logo/k2');
-  await k2.init(new TVec3(15, 2, -1), { scale: new TVec3(1,1,1), bodyProps: { mass: 100}})
+  await k2.init(new TVec3(11, 2, -1), { scale: new TVec3(1,1,1), bodyProps: { mass: 100}})
   objs.push(k2);
 
   const r1 = new OBJObj(scene, world, 'assets/logo/r1');
-  await r1.init(new TVec3(2, 2, -9), { scale: new TVec3(1,1,1), bodyProps: { mass: 100}})
+  await r1.init(new TVec3(2.6, 2, -8), { scale: new TVec3(1,1,1), bodyProps: { mass: 100}})
   objs.push(r1);
 
-  // const r2 = new OBJObj(scene, world, 'assets/logo/r2');
-  // await r2.init(new TVec3(8, 2, -5.9), { scale: new TVec3(1,1,1), bodyProps: { mass: 100}})
-  // objs.push(r2);
+  const r2 = new OBJObj(scene, world, 'assets/logo/r2');
+  await r2.init(new TVec3(12, 2, -8.5), { scale: new TVec3(1,1,1), bodyProps: { mass: 100}})
+  objs.push(r2);
 }
