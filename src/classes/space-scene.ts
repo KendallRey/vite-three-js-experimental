@@ -12,6 +12,8 @@ import Spawner from './spawner';
 import HoverShip from './hover-ship';
 import Mob from './mobs';
 import { spawnLogo } from '../spawners/spawn-logo';
+import FBXObj from './fbx-obj';
+import { spawnString } from '../spawners/spawn-string';
 
 class SpaceScene extends THREE.Scene {
 
@@ -76,16 +78,16 @@ class SpaceScene extends THREE.Scene {
     // this.add(pointLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.camera.top = 10;
-    directionalLight.shadow.camera.bottom = -10;
-    directionalLight.shadow.camera.left = 10;
-    directionalLight.shadow.camera.right = -10;
-    directionalLight.shadow.camera.far = 10;
-    directionalLight.shadow.camera.near = -50;
+    // directionalLight.castShadow = true;
+    // directionalLight.shadow.camera.top = 10;
+    // directionalLight.shadow.camera.bottom = -10;
+    // directionalLight.shadow.camera.left = 10;
+    // directionalLight.shadow.camera.right = -10;
+    // directionalLight.shadow.camera.far = 10;
+    // directionalLight.shadow.camera.near = -50;
     this.add(directionalLight);
     
-    this.add(new THREE.CameraHelper(directionalLight.shadow.camera))
+    // this.add(new THREE.CameraHelper(directionalLight.shadow.camera))
   }
 
   private currentCameraPosition = new THREE.Vector3();
@@ -211,14 +213,19 @@ class SpaceScene extends THREE.Scene {
     this.camera.position.sub(objMesh.position);
     this.camera.position.applyQuaternion(objMesh.quaternion.invert());
     this.camera.quaternion.premultiply(objMesh.quaternion.invert());
+
+    // this.cameraContainer.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), Math.PI / 3 );
   }
 
   // #endregion
 
   private async initObjects() {
 
-    await spawnLogo({ scene: this, world: this.world, objs: this.objs });
-
+    await spawnLogo({ scene: this, world: this.world, objs: this.objs, position: { x: 20, y: 0, z: 2} });
+    // const k2 = new FBXObj(this, this.world, 'assets/letters/lower/z');
+    // await k2.init(new THREE.Vector3(0, 5, 0), { bodyProps: { mass: 200 }})
+    // this.objs.push(k2);
+    await spawnString({ value: 'abcD', scene: this, world: this.world, objs: this.objs });
     // const spawner = new Spawner(this, this.world, { x: 5, y: 5});
     // spawner.init();
     // this.objs.push(...spawner.objs);

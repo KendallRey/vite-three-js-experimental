@@ -21,7 +21,9 @@ class FBXObj extends DynamicObj {
     this.applyMaterial(this.mesh as THREE.Group<THREE.Object3DEventMap>);
     this.setOptions(this.mesh, options);
     const body = this.useBoxShape(this.mesh);
-    // const body = this.useConvexShape(mesh);
+    // const body = this.useConvexShape(this.mesh);
+    // const body = this.useTTCConvexShape(this.mesh, options);
+
     const newVec3 = ThreeVec3ToCannonVec3(position);
     body.position.copy(newVec3);
     this.setObj(this.mesh, body);
@@ -35,10 +37,10 @@ class FBXObj extends DynamicObj {
           // Here you can modify the material properties if needed
           // For example: child.material.color.set(0xff0000);
           const material = new THREE.MeshStandardMaterial({
-            color: 0xff0000,
-            emissive: 0xff0000,
-            emissiveIntensity: 10,
-            opacity: 1,
+            color: 0xffffff,
+            // emissive: 0xff0000,
+            // emissiveIntensity: 10,
+            // opacity: 1,
             blending: THREE.AdditiveBlending,
             
           });
