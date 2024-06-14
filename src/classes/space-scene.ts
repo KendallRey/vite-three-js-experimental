@@ -3,16 +3,16 @@ import * as CANNON from 'cannon-es';
 import SpaceShip from './space-ship';
 import DynamicObj from './dynamic-obj';
 import Ground from './world-ground';
-import OBJObj from './obj-obj';
-import ParticleSystem from './particle-system';
+// import OBJObj from './obj-obj';
+// import ParticleSystem from './particle-system';
 import { IDestroyable } from '../interface/killable';
 import Effect from './effects';
-import Laser from './laser';
-import Spawner from './spawner';
+// import Laser from './laser';
+// import Spawner from './spawner';
 import HoverShip from './hover-ship';
 import Mob from './mobs';
 import { spawnLogo } from '../spawners/spawn-logo';
-import FBXObj from './fbx-obj';
+// import FBXObj from './fbx-obj';
 import { spawnString } from '../spawners/spawn-string';
 
 class SpaceScene extends THREE.Scene {
@@ -20,16 +20,16 @@ class SpaceScene extends THREE.Scene {
   private readonly camera: THREE.PerspectiveCamera;
   private readonly cameraContainer = new THREE.Group();
   private readonly clock = new THREE.Clock();
-
-  private star?: THREE.Texture;
+  // private screenSize = new THREE.Vector2();
+  // private star?: THREE.Texture;
   private particlesMesh?: THREE.Points;
 
-  private screenSize = new THREE.Vector2();
+  // private screenSize = new THREE.Vector2();
 
   private mousePosition = new THREE.Vector2();
   private targetPosition = new THREE.Vector3();
   private raycaster = new THREE.Raycaster();
-  private groundMesh?: THREE.Mesh;
+  // private groundMesh?: THREE.Mesh;
   private world: CANNON.World;
 
   constructor(camera: THREE.PerspectiveCamera, world: CANNON.World, screenX: number, screenY: number) {
@@ -56,12 +56,13 @@ class SpaceScene extends THREE.Scene {
   }
 
   private initScreenSize(x: number, y: number) {
-    this.screenSize  = new THREE.Vector2(x, y);
+    console.log(`X:${x}, Y:${y}`)
+    // this.screenSize  = new THREE.Vector2(x, y);
   }
 
   private async loadTextures() {
-    const textureLoader = new THREE.TextureLoader();
-    this.star = await textureLoader.loadAsync('assets/star.png');
+    // const textureLoader = new THREE.TextureLoader();
+    // this.star = await textureLoader.loadAsync('assets/star.png');
   }
 
   private initGround() {
@@ -107,28 +108,28 @@ class SpaceScene extends THREE.Scene {
     this.add(this.cameraContainer);
   }
 
-  private initBGStarts(count: number) {
-    const totalCount = count * 3;
-    const particlesGeometry = new THREE.BufferGeometry();
-    const positionArr = new Float32Array(totalCount);
+  // private initBGStarts(count: number) {
+  //   const totalCount = count * 3;
+  //   const particlesGeometry = new THREE.BufferGeometry();
+  //   const positionArr = new Float32Array(totalCount);
 
-    for(let i = 0; i < totalCount; i++){
-      positionArr[i] = (Math.random() - 0.5) * (Math.random() * 100);
-    }
+  //   for(let i = 0; i < totalCount; i++){
+  //     positionArr[i] = (Math.random() - 0.5) * (Math.random() * 100);
+  //   }
 
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.005,
-      map: this.star,
-      color: 'white',
-      transparent: true,
-    });
+  //   const particlesMaterial = new THREE.PointsMaterial({
+  //     size: 0.005,
+  //     map: this.star,
+  //     color: 'white',
+  //     transparent: true,
+  //   });
 
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positionArr, 3));
+  //   particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positionArr, 3));
 
-    this.particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+  //   this.particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
 
-    this.add(this.particlesMesh);
-  }
+  //   this.add(this.particlesMesh);
+  // }
 
   private testMesh?: THREE.Mesh;
   private objs: DynamicObj[] = [];
@@ -149,7 +150,7 @@ class SpaceScene extends THREE.Scene {
 
     this.testMesh = new THREE.Mesh(geometry, material);
 
-    // this.add(this.testMesh);
+    this.add(this.testMesh);
   }
 
 
@@ -166,13 +167,13 @@ class SpaceScene extends THREE.Scene {
     })
   }
 
-  private spawnParticle(origin: THREE.Vector3, target: THREE.Vector3) {
-    const newParticleSystem = new ParticleSystem(this, this.world, 50, target, 100);
-    this.effects.push(newParticleSystem);
+  // private spawnParticle(origin: THREE.Vector3, target: THREE.Vector3) {
+  //   const newParticleSystem = new ParticleSystem(this, this.world, 50, target, 100);
+  //   this.effects.push(newParticleSystem);
 
-    const laser = new Laser(this, origin, target, 20);
-    this.effects.push(laser);
-  }
+  //   const laser = new Laser(this, origin, target, 20);
+  //   this.effects.push(laser);
+  // }
 
   // #region Player
 

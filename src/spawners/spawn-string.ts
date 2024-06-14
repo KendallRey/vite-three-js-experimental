@@ -13,7 +13,7 @@ const ASSETS_LETTERS_UPPER = 'assets/letters/upper/'
 const ASSETS_LETTERS_LOWER = 'assets/letters/lower/'
 
 export const spawnString = async (props: ISpawnerString) => {
-  const {scene,  world, objs, value, position } = props;
+  const {scene,  world, objs, value } = props;
 
   for(let i=0; i < value.length; i++){
     const char = value[i];
